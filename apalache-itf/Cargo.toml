@@ -1,0 +1,12 @@
+[package]
+name = "apalache-itf"
+version = "0.1.0"
+edition = "2021"
+
+[dependencies]
+apalache-itf-derive = { version = "0.1.0", path = "../apalache-itf-derive" }
+
+itertools.workspace = true
+serde.workspace = true
+serde_json.workspace = true
+thiserror.workspace = true
