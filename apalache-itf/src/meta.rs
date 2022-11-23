@@ -10,7 +10,7 @@ pub struct TraceMeta {
     #[serde(default)]
     pub source: Option<String>,
 
-    #[serde(rename = "varTypes")]
+    #[serde(default, rename = "varTypes")]
     pub var_types: HashMap<String, String>,
 
     #[serde(default)]
