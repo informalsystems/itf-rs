@@ -4,11 +4,11 @@ use proc_macro::TokenStream;
 use proc_macro2::TokenStream as TokenStream2;
 use quote::{quote, quote_spanned};
 use syn::{
-    parse_macro_input, parse_quote, spanned::Spanned, Data, DeriveInput, Fields, FieldsUnnamed,
-    GenericParam, Generics,
+    parse_macro_input, parse_quote, spanned::Spanned, Attribute, Data, DeriveInput, Fields,
+    FieldsUnnamed, GenericParam, Generics, Lit, Meta, NestedMeta,
 };
 
-#[proc_macro_derive(DecodeItfValue)]
+#[proc_macro_derive(DecodeItfValue, attributes(itf))]
 pub fn derive_decode_itf_value(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     let name = input.ident;
@@ -107,10 +107,12 @@ fn itf_decode(data: &Data) -> TokenStream2 {
         Data::Enum(ref data) => {
             let variants = data.variants.iter().map(|v| {
                 assert!(matches!(v.fields, Fields::Unit));
+
                 let name = &v.ident;
-                let quote_name = name.to_string();
+                let value = get_rename(&v.attrs).unwrap_or_else(|| name.to_string());
+
                 quote_spanned! { v.span() =>
-                    Value::String(s) if s == #quote_name => Ok(Self::#name)
+                    Value::String(s) if s == #value => Ok(Self::#name)
                 }
             });
 
@@ -126,6 +128,32 @@ fn itf_decode(data: &Data) -> TokenStream2 {
 
         Data::Union(_) => unimplemented!(),
     }
+}
+
+// TOOD: Refactor this mess
+fn get_rename(attrs: &[Attribute]) -> Option<String> {
+    for attr in attrs {
+        if let Ok(syn::Meta::List(list)) = attr.parse_meta() {
+            let is_itf = list.path.get_ident().map_or(false, |i| i == "itf");
+            if !is_itf {
+                continue;
+            }
+
+            for meta in list.nested {
+                if let NestedMeta::Meta(Meta::NameValue(meta)) = meta {
+                    if let Some(name) = meta.path.get_ident() {
+                        if name.to_string().as_str() == "rename" {
+                            if let Lit::Str(name) = meta.lit {
+                                return Some(name.value());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    None
 }
 
 fn try_from_raw_state(data: &Data) -> TokenStream2 {

@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use apalache_itf::{parse_raw_trace, raw, DecodeError, DecodeItfValue, TryFromRawState, Value};
+use apalache_itf::{parse_raw_trace, raw, DecodeError, DecodeItfValue, TryFromRawState};
 
 #[test]
 fn cannibals() {
@@ -31,27 +31,16 @@ fn insufficent_success_9() {
     type Balance = HashMap<String, num_bigint::BigInt>;
     type Balances = HashMap<String, Balance>;
 
-    #[derive(Copy, Clone, Debug)]
+    #[derive(Copy, Clone, Debug, DecodeItfValue)]
     enum Outcome {
+        #[itf(rename = "")]
         None,
+        #[itf(rename = "SUCCESS")]
         Success,
+        #[itf(rename = "DUPLICATE_DENOM")]
         DuplicateDenom,
+        #[itf(rename = "INSUFFICIENT_FUNDS")]
         InsufficientFunds,
-    }
-
-    impl DecodeItfValue for Outcome {
-        fn decode(value: Value) -> Result<Self, DecodeError> {
-            match value {
-                Value::String(s) => match s.as_str() {
-                    "" => Ok(Self::None),
-                    "SUCCESS" => Ok(Self::Success),
-                    "DUPLICATE_DENOM" => Ok(Self::DuplicateDenom),
-                    "INSUFFICIENT_FUNDS" => Ok(Self::InsufficientFunds),
-                    _ => Err(DecodeError::InvalidType("string")),
-                },
-                _ => Err(DecodeError::InvalidType("string")),
-            }
-        }
     }
 
     #[derive(Clone, Debug, TryFromRawState)]
