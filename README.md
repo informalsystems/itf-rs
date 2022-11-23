@@ -12,7 +12,7 @@ Rust library for consuming [Apalache ITF Traces][itf-adr].
 
 ## Example
 
-**Trace:** [`MissionariesAndCannibals.itf.json`](./apalache-itf-derive/tests/fixtures/MissionariesAndCannibals.itf.json)
+**Trace:** [`MissionariesAndCannibals.itf.json`](./apalache-itf/tests/fixtures/MissionariesAndCannibals.itf.json)
 
 ```rust
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, DecodeItfValue)]
