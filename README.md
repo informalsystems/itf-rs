@@ -41,7 +41,7 @@ dbg!(trace);
 
 **Output:**
 
-```
+```rust
 trace = Trace {
     meta: TraceMeta {
         description: None,
