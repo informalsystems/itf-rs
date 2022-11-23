@@ -1,5 +1,6 @@
 
 [![Build Status][build-image]][build-link]
+[![codecov][codecov-image]][codecov-link]
 [![Apache 2.0 Licensed][license-image]][license-link]
 ![Rust Stable][rustc-image]
 ![Rust 1.65+][rustc-version]
@@ -166,6 +167,8 @@ Unless required by applicable law or agreed to in writing, software distributed 
 
 [build-image]: https://github.com/informalsystems/itf-rs/workflows/Rust/badge.svg
 [build-link]: https://github.com/informalsystems/itf-rs/actions?query=workflow%3ARust
+[codecov-image]: https://codecov.io/github/informalsystems/itf-rs/branch/main/graph/badge.svg?token=6LFLG9ILD1
+[codecov-link]: https://codecov.io/github/informalsystems/itf-rs
 [license-image]: https://img.shields.io/badge/license-Apache_2.0-blue.svg
 [license-link]: https://github.com/informalsystems/itf-rs/blob/master/LICENSE
 [rustc-image]: https://img.shields.io/badge/rustc-stable-blue.svg
