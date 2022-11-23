@@ -9,7 +9,7 @@ pub use meta::*;
 pub mod raw;
 
 mod value;
-pub use value::*;
+pub use value::Value;
 
 pub use apalache_itf_derive::{DecodeItfValue, TryFromRawState};
 
