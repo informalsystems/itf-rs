@@ -1,12 +1,13 @@
 use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
+use serde_with::{serde_as, DisplayFromStr};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum Value {
     Int(i64),
-    BigInt(i128),
+    BigInt(BigInt),
     Boolean(bool),
     String(String),
     Map(Map),
@@ -23,10 +24,36 @@ pub struct Unserializable {
     pub(crate) repr: String,
 }
 
+impl Unserializable {
+    pub fn as_str(&self) -> &str {
+        self.repr.as_str()
+    }
+}
+
+#[serde_as]
+#[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
+pub struct BigInt {
+    #[serde(rename = "#bigint")]
+    #[serde_as(as = "DisplayFromStr")]
+    pub(crate) value: num_bigint::BigInt,
+}
+
+impl BigInt {
+    pub fn into_bigint(self) -> num_bigint::BigInt {
+        self.value
+    }
+}
+
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Tuple {
     #[serde(rename = "#tup")]
     pub(crate) elements: Vec<Value>,
+}
+
+impl Tuple {
+    pub fn as_slice(&self) -> &[Value] {
+        self.elements.as_slice()
+    }
 }
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
@@ -36,8 +63,8 @@ pub struct Map {
 }
 
 impl Map {
-    pub fn to_hashmap(self) -> HashMap<String, Value> {
-        self.map.into_iter().collect()
+    pub fn as_slice(&self) -> &[(String, Value)] {
+        self.map.as_slice()
     }
 }
 
@@ -54,6 +81,12 @@ impl IntoIterator for Map {
 pub struct Set {
     #[serde(rename = "#set")]
     pub(crate) set: Vec<Value>,
+}
+
+impl Set {
+    pub fn as_slice(&self) -> &[Value] {
+        self.set.as_slice()
+    }
 }
 
 impl IntoIterator for Set {

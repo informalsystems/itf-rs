@@ -1,5 +1,4 @@
 use itertools::Itertools;
-use meta::TraceMeta;
 
 mod decode;
 pub use decode::*;

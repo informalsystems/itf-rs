@@ -1,4 +1,5 @@
 use itertools::Itertools;
+use num_bigint::BigInt;
 use thiserror::Error;
 
 use crate::value::Value;
@@ -59,7 +60,7 @@ macro_rules! decode {
 
 decode!(Value, v, v);
 decode!(i64, Value::Int(n), n);
-decode!(i128, Value::BigInt(n), n);
+decode!(BigInt, Value::BigInt(n), n.into_bigint());
 decode!(bool, Value::Boolean(n), n);
 decode!(String, Value::String(n), n);
 
