@@ -6,18 +6,34 @@ use apalache_itf::{parse_raw_trace, raw, DecodeError, DecodeItfValue, TryFromRaw
 fn cannibals() {
     #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, DecodeItfValue)]
     enum Bank {
-        N,
-        W,
-        E,
-        S,
+        #[itf(rename = "N")]
+        North,
+        #[itf(rename = "W")]
+        West,
+        #[itf(rename = "E")]
+        East,
+        #[itf(rename = "S")]
+        South,
+    }
+
+    #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, DecodeItfValue)]
+    enum Person {
+        #[itf(rename = "c1_OF_PERSON")]
+        Cannibal1,
+        #[itf(rename = "c2_OF_PERSON")]
+        Cannibal2,
+        #[itf(rename = "m1_OF_PERSON")]
+        Missionary1,
+        #[itf(rename = "m2_OF_PERSON")]
+        Missionary2,
     }
 
     #[derive(Clone, Debug, TryFromRawState)]
     #[allow(dead_code)]
     struct State {
         #[itf(rename = "bank_of_boat")]
-        pub boat: Bank,
-        pub who_is_on_bank: HashMap<Bank, HashSet<String>>,
+        pub boat_is_on_bank: Bank,
+        pub who_is_on_bank: HashMap<Bank, HashSet<Person>>,
     }
 
     let data = include_str!("../tests/fixtures/MissionariesAndCannibals.itf.json");
@@ -44,12 +60,20 @@ fn insufficent_success_9() {
         InsufficientFunds,
     }
 
+    // #[derive(Clone, Debug, DecodeItfValue)]
+    // #[allow(dead_code)]
+    // struct Action {
+    //     tag: String,
+    //     balances: Balances,
+    // }
+
     #[derive(Clone, Debug, TryFromRawState)]
     #[allow(dead_code)]
     struct State {
-        pub outcome: Outcome,
-        pub balances: Balances,
-        pub step: i64,
+        // action: Balances,
+        outcome: Outcome,
+        balances: Balances,
+        step: i64,
     }
 
     let data = include_str!("../tests/fixtures/TestInsufficientSuccess9.itf.json");
