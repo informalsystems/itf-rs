@@ -1,6 +1,25 @@
-use std::collections::HashSet;
+use std::collections::{HashMap, HashSet};
 
 use apalache_itf::DecodeItfValue;
+use num_bigint::BigInt;
+
+#[test]
+#[allow(dead_code)]
+fn struct_with_named_fields() {
+    #[derive(DecodeItfValue)]
+    struct Named {
+        foo: i64,
+        bar: Box<Named>,
+        baz: HashMap<BigInt, HashSet<String>>,
+    }
+}
+
+#[test]
+#[allow(dead_code)]
+fn struct_with_unnamed_fields() {
+    #[derive(DecodeItfValue)]
+    struct Unnamed(i64, Box<Unnamed>, HashMap<BigInt, HashSet<String>>);
+}
 
 #[test]
 #[allow(dead_code)]
