@@ -119,7 +119,7 @@ fn itf_decode(data: &Data) -> TokenStream2 {
 
                 match value {
                     #(#variants, )*
-                    _ => Err(DecodeError::InvalidType)
+                    _ => Err(DecodeError::InvalidType("string"))
                 }
             }
         }

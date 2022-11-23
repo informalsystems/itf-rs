@@ -6,8 +6,8 @@ use crate::value::Value;
 
 #[derive(Debug, Error)]
 pub enum DecodeError {
-    #[error("invalid type")]
-    InvalidType,
+    #[error("invalid type, expected '{0}'")]
+    InvalidType(&'static str),
 
     #[error("field not found: {0}")]
     FieldNotFound(&'static str),
@@ -21,61 +21,61 @@ where
 }
 
 macro_rules! decode {
-    ($ty:ty, $cons:pat, $x:expr) => {
+    ($name:expr, $ty:ty, $cons:pat, $x:expr) => {
         impl DecodeItfValue for $ty {
             #[allow(irrefutable_let_patterns)]
             fn decode(value: Value) -> Result<Self, DecodeError> {
                 if let $cons = value {
                     Ok($x)
                 } else {
-                    Err(DecodeError::InvalidType)
+                    Err(DecodeError::InvalidType($name))
                 }
             }
         }
     };
 }
 
-// macro_rules! decode_tuple {
-//     ($ty:ty) => {
-//         impl<T> DecodeItfValue for $ty
-//         where
-//             T: DecodeItfValue,
-//         {
-//             fn decode(value: Value) -> Result<Self, DecodeError> {
-//                 if let Value::Tuple(t) = value {
-//                     t.elements
-//                         .into_iter()
-//                         .map(T::decode)
-//                         .collect::<Result<Vec<_>, _>>()?
-//                         .into_iter()
-//                         .collect_tuple()
-//                         .ok_or(DecodeError::InvalidType)
-//                 } else {
-//                     Err(DecodeError::InvalidType)
-//                 }
-//             }
-//         }
-//     };
-// }
+// FIXME: do this properly without cloning
+macro_rules! decode_tuple {
+    ($($ty:ident)+) => {
+        impl<$($ty ,)+> DecodeItfValue for ($($ty ,)+)
+        where
+            $($ty: DecodeItfValue,)+
+        {
+            #[allow(unused_assignments, non_snake_case)]
+            fn decode(value: Value) -> Result<Self, DecodeError> {
+                if let Value::Tuple(t) = value {
+                    let mut i = 0;
+                    $(
+                        let $ty = <$ty as DecodeItfValue>::decode(t.elements[i].clone())?;
+                        i += 1;
+                    )+
+                    Ok(($($ty,)+))
+                } else {
+                    Err(DecodeError::InvalidType("tuple"))
+                }
+            }
+        }
+    };
+}
 
-decode!(Value, v, v);
-decode!(i64, Value::Int(n), n);
-decode!(BigInt, Value::BigInt(n), n.into_bigint());
-decode!(bool, Value::Boolean(n), n);
-decode!(String, Value::String(n), n);
+decode!("value", Value, v, v);
+decode!("int", i64, Value::Int(n), n);
+decode!("bigint", BigInt, Value::BigInt(n), n.into_bigint());
+decode!("boolean", bool, Value::Boolean(n), n);
+decode!("string", String, Value::String(n), n);
 
-// decode_tuple!((T,));
-// decode_tuple!((T, T));
-// decode_tuple!((T, T, T));
-// decode_tuple!((T, T, T, T));
-// decode_tuple!((T, T, T, T, T));
-// decode_tuple!((T, T, T, T, T, T));
-// decode_tuple!((T, T, T, T, T, T, T));
-// decode_tuple!((T, T, T, T, T, T, T, T));
-// decode_tuple!((T, T, T, T, T, T, T, T, T));
-// decode_tuple!((T, T, T, T, T, T, T, T, T, T));
-// decode_tuple!((T, T, T, T, T, T, T, T, T, T, T));
-// decode_tuple!((T, T, T, T, T, T, T, T, T, T, T, T));
+decode_tuple!(A B);
+decode_tuple!(A B C);
+decode_tuple!(A B C D);
+decode_tuple!(A B C D E);
+decode_tuple!(A B C D E F);
+decode_tuple!(A B C D E F G);
+decode_tuple!(A B C D E F G H);
+decode_tuple!(A B C D E F G H I);
+decode_tuple!(A B C D E F G H I J);
+decode_tuple!(A B C D E F G H I J K);
+decode_tuple!(A B C D E F G H I J K L);
 
 impl<T> DecodeItfValue for Vec<T>
 where
@@ -85,7 +85,7 @@ where
         if let Value::List(l) = value {
             l.into_iter().map(T::decode).try_collect()
         } else {
-            Err(DecodeError::InvalidType)
+            Err(DecodeError::InvalidType("list"))
         }
     }
 }
@@ -103,11 +103,12 @@ where
         if let Value::Set(s) = value {
             s.into_iter().map(T::decode).try_collect()
         } else {
-            Err(DecodeError::InvalidType)
+            Err(DecodeError::InvalidType("set"))
         }
     }
 }
 
+// TODO: Specialize for the case where K = String
 impl<K, V> DecodeItfValue for HashMap<K, V>
 where
     K: DecodeItfValue + Hash + Eq,
@@ -130,7 +131,7 @@ where
                 })
                 .try_collect(),
 
-            _ => Err(DecodeError::InvalidType),
+            _ => Err(DecodeError::InvalidType("map")),
         }
     }
 }
