@@ -18,11 +18,13 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
           override: true
-      - uses: actions-rs/cargo@v1
+      - name: Format
+        uses: actions-rs/cargo@v1
         with:
           command: fmt
           args: --all -- --check
@@ -31,13 +33,14 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
           components: clippy
           override: true
-      - uses: Swatinem/rust-cache@v1
-      - uses: actions-rs/clippy-check@v1
+      - name: Clippy
+        uses: actions-rs/clippy-check@v1
         with:
           token: ${{ secrets.GITHUB_TOKEN }}
           args: --all-features --all-targets
@@ -47,17 +50,20 @@ jobs:
     timeout-minutes: 30
     steps:
       - uses: actions/checkout@v2
-      - uses: actions-rs/toolchain@v1
+      - name: Install Rust
+        uses: actions-rs/toolchain@v1
         with:
           toolchain: stable
           override: true
       - name: Install cargo-nextest
         uses: taiki-e/install-action@nextest
-      - uses: actions-rs/cargo@v1
+      - name: Build tests
+        uses: actions-rs/cargo@v1
         with:
           command: nextest
           args: run --all-features --no-run
-      - uses: actions-rs/cargo@v1
+      - name: Run tests
+        uses: actions-rs/cargo@v1
         with:
           command: nextest
           args: run --all-features --no-fail-fast --no-capture
