@@ -9,6 +9,12 @@ pub enum DecodeError {
 
     #[error("field not found: {0}")]
     FieldNotFound(&'static str),
+
+    #[error("unknown tag: '{0}'")]
+    UnknownTag(&'static str),
+
+    #[error("unknown variant: '{0}'")]
+    UnknownVariant(String),
 }
 
 pub trait DecodeItfValue
