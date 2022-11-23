@@ -1,7 +1,6 @@
 use std::collections::HashMap;
 
 use serde::{Deserialize, Serialize};
-use serde_with::{serde_as, DisplayFromStr};
 
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 #[serde(untagged)]
@@ -272,11 +271,9 @@ impl Unserializable {
     }
 }
 
-#[serde_as]
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct BigInt {
-    #[serde(rename = "#bigint")]
-    #[serde_as(as = "DisplayFromStr")]
+    #[serde(rename = "#bigint", with = "crate::util::serde::display_from_str")]
     pub(crate) value: num_bigint::BigInt,
 }
 

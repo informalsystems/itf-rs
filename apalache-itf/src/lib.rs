@@ -11,6 +11,8 @@ pub mod raw;
 mod value;
 pub use value::Value;
 
+mod util;
+
 pub use apalache_itf_derive::{DecodeItfValue, TryFromRawState};
 
 #[derive(Debug, Clone, PartialEq, Eq)]
