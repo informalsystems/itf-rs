@@ -86,7 +86,7 @@ fn itf_decode(data: &Data) -> TokenStream2 {
                 });
 
                 quote! {
-                    let mut map = <HashMap<String, Value> as DecodeItfValue>::decode(value)?;
+                    let mut map = <HashMap<String, ::apalache_itf::Value> as DecodeItfValue>::decode(value)?;
 
                     Ok(Self {
                         #(#recurse ,)*
