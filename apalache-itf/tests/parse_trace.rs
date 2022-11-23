@@ -5,7 +5,7 @@ use apalache_itf::{parse_raw_trace, raw, DecodeError, DecodeItfValue, TryFromRaw
 #[test]
 fn cannibals() {
     #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, DecodeItfValue)]
-    enum Dir {
+    enum Bank {
         N,
         W,
         E,
@@ -15,8 +15,9 @@ fn cannibals() {
     #[derive(Clone, Debug, TryFromRawState)]
     #[allow(dead_code)]
     struct State {
-        pub bank_of_boat: Dir,
-        pub who_is_on_bank: HashMap<Dir, HashSet<String>>,
+        #[itf(rename = "bank_of_boat")]
+        pub boat: Bank,
+        pub who_is_on_bank: HashMap<Bank, HashSet<String>>,
     }
 
     let data = include_str!("../tests/fixtures/MissionariesAndCannibals.itf.json");

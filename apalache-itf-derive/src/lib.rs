@@ -30,7 +30,7 @@ pub fn derive_decode_itf_value(input: TokenStream) -> TokenStream {
     TokenStream::from(expanded)
 }
 
-#[proc_macro_derive(TryFromRawState)]
+#[proc_macro_derive(TryFromRawState, attributes(itf))]
 pub fn derive_try_from_raw_state(input: TokenStream) -> TokenStream {
     let input = parse_macro_input!(input as DeriveInput);
     let name = input.ident;
@@ -72,14 +72,15 @@ fn itf_decode(data: &Data) -> TokenStream2 {
             Fields::Named(ref fields) => {
                 let recurse = fields.named.iter().map(|f| {
                     let name = f.ident.as_ref().unwrap();
-                    let quote_name = name.to_string();
                     let ty = &f.ty;
+                    let attrs = parse_itf_attrs(&f.attrs);
+                    let value = attrs.rename.unwrap_or_else(|| name.to_string());
 
                     quote_spanned! { f.span() =>
                         #name : <#ty as ::apalache_itf::DecodeItfValue>::decode(
                             map
-                                .remove(#quote_name)
-                                .ok_or(::apalache_itf::DecodeError::FieldNotFound(#quote_name))?
+                                .remove(#value)
+                                .ok_or(::apalache_itf::DecodeError::FieldNotFound(#value))?
                         )?
                     }
                 });
@@ -109,7 +110,8 @@ fn itf_decode(data: &Data) -> TokenStream2 {
                 assert!(matches!(v.fields, Fields::Unit));
 
                 let name = &v.ident;
-                let value = get_rename(&v.attrs).unwrap_or_else(|| name.to_string());
+                let attrs = parse_itf_attrs(&v.attrs);
+                let value = attrs.rename.unwrap_or_else(|| name.to_string());
 
                 quote_spanned! { v.span() =>
                     Value::String(s) if s == #value => Ok(Self::#name)
@@ -130,47 +132,22 @@ fn itf_decode(data: &Data) -> TokenStream2 {
     }
 }
 
-// TOOD: Refactor this mess
-fn get_rename(attrs: &[Attribute]) -> Option<String> {
-    for attr in attrs {
-        if let Ok(syn::Meta::List(list)) = attr.parse_meta() {
-            let is_itf = list.path.get_ident().map_or(false, |i| i == "itf");
-            if !is_itf {
-                continue;
-            }
-
-            for meta in list.nested {
-                if let NestedMeta::Meta(Meta::NameValue(meta)) = meta {
-                    if let Some(name) = meta.path.get_ident() {
-                        if name.to_string().as_str() == "rename" {
-                            if let Lit::Str(name) = meta.lit {
-                                return Some(name.value());
-                            }
-                        }
-                    }
-                }
-            }
-        }
-    }
-
-    None
-}
-
 fn try_from_raw_state(data: &Data) -> TokenStream2 {
     match *data {
         Data::Struct(ref data) => match data.fields {
             Fields::Named(ref fields) => {
                 let recurse = fields.named.iter().map(|f| {
                     let name = f.ident.as_ref().unwrap();
-                    let quote_name = name.to_string();
                     let ty = &f.ty;
+                    let attrs = parse_itf_attrs(&f.attrs);
+                    let value = attrs.rename.unwrap_or_else(|| name.to_string());
 
                     quote_spanned! { f.span() =>
                         #name : <#ty as DecodeItfValue>::decode(
                             raw_state
                                 .values
-                                .remove(#quote_name)
-                                .ok_or(DecodeError::FieldNotFound(#quote_name))?
+                                .remove(#value)
+                                .ok_or(DecodeError::FieldNotFound(#value))?
                         )?
                     }
                 });
@@ -202,6 +179,38 @@ fn try_from_raw_state(data: &Data) -> TokenStream2 {
 
         Data::Enum(_) | Data::Union(_) => unimplemented!(),
     }
+}
+
+#[derive(Debug, Default)]
+struct ItfAttributes {
+    rename: Option<String>,
+}
+
+fn parse_itf_attrs(attrs: &[Attribute]) -> ItfAttributes {
+    let mut itf_attrs = ItfAttributes::default();
+
+    for attr in attrs {
+        if let Ok(syn::Meta::List(list)) = attr.parse_meta() {
+            let is_itf = list.path.get_ident().map_or(false, |i| i == "itf");
+            if !is_itf {
+                continue;
+            }
+
+            for meta in list.nested {
+                if let NestedMeta::Meta(Meta::NameValue(meta)) = meta {
+                    if let Some(name) = meta.path.get_ident() {
+                        if name.to_string().as_str() == "rename" {
+                            if let Lit::Str(name) = meta.lit {
+                                itf_attrs.rename = Some(name.value());
+                            }
+                        }
+                    }
+                }
+            }
+        }
+    }
+
+    itf_attrs
 }
 
 fn fields_to_tuple_type(fields: &FieldsUnnamed) -> TokenStream2 {
