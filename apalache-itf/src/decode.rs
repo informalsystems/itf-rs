@@ -142,3 +142,32 @@ where
         }
     }
 }
+
+#[allow(clippy::bool_assert_comparison)]
+#[cfg(test)]
+mod tests {
+    use serde_json::json;
+
+    use super::*;
+
+    #[test]
+    fn list() {
+        let value: Value = serde_json::from_value(json!([1, 2, 3])).unwrap();
+        let list = <Vec<i64>>::decode(value).unwrap();
+
+        assert_eq!(list, vec![1, 2, 3]);
+    }
+
+    #[test]
+    fn tuple() {
+        let value: Value = serde_json::from_value(json!({
+            "#tup": [1, "Hello", true]
+        }))
+        .unwrap();
+
+        let (a, b, c) = <(i64, String, bool)>::decode(value).unwrap();
+        assert_eq!(a, 1);
+        assert_eq!(b.as_str(), "Hello");
+        assert_eq!(c, true);
+    }
+}
