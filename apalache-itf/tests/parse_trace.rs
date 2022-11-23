@@ -1,6 +1,7 @@
 use std::collections::{HashMap, HashSet};
 
 use apalache_itf::{parse_raw_trace, raw, DecodeItfValue, TryFromRawState};
+use num_bigint::BigInt;
 
 #[test]
 fn cannibals() {
@@ -45,7 +46,7 @@ fn cannibals() {
 
 #[test]
 fn insufficent_success_9() {
-    type Balance = HashMap<String, num_bigint::BigInt>;
+    type Balance = HashMap<String, BigInt>;
     type Balances = HashMap<String, Balance>;
 
     #[derive(Copy, Clone, Debug, DecodeItfValue)]
@@ -60,17 +61,32 @@ fn insufficent_success_9() {
         InsufficientFunds,
     }
 
-    // #[derive(Clone, Debug, DecodeItfValue)]
-    // #[allow(dead_code)]
-    // struct Action {
-    //     tag: String,
-    //     balances: Balances,
-    // }
+    #[derive(Clone, Debug, DecodeItfValue)]
+    #[allow(dead_code)]
+    struct Coin {
+        amount: BigInt,
+        denom: String,
+    }
+
+    #[derive(Clone, Debug, DecodeItfValue)]
+    #[allow(dead_code)]
+    #[itf(tag = "tag")]
+    enum Action {
+        #[itf(rename = "init")]
+        Init { balances: Balances },
+
+        #[itf(rename = "send")]
+        Send {
+            receiver: String,
+            sender: String,
+            coins: Vec<Coin>,
+        },
+    }
 
     #[derive(Clone, Debug, TryFromRawState)]
     #[allow(dead_code)]
     struct State {
-        // action: Balances,
+        action: Action,
         outcome: Outcome,
         balances: Balances,
         step: i64,
