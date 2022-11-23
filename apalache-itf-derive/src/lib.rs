@@ -97,14 +97,23 @@ fn itf_decode(data: &Data, attrs: &[Attribute]) -> syn::Result<TokenStream2> {
 }
 
 fn derive_enum(data: &DataEnum, tag: &str) -> syn::Result<TokenStream2> {
-    let (unit_variants, other_variants): (Vec<_>, Vec<_>) = data
+    let (unit_variants, named_variants): (Vec<_>, Vec<_>) = data
         .variants
         .iter()
         .partition(|v| matches!(v.fields, Fields::Unit));
 
-    let unit_case = derive_unit_enum(&unit_variants)?;
+    let unit_match = if unit_variants.is_empty() {
+        quote!()
+    } else {
+        let unit_match = derive_unit_enum(&unit_variants)?;
+        quote! {
+            if value.is_string() {
+                #unit_match
+            } else
+        }
+    };
 
-    let other_cases = other_variants
+    let named_cases = named_variants
         .iter()
         .map(|v| match v.fields {
             Fields::Named(ref fields) => {
@@ -131,27 +140,35 @@ fn derive_enum(data: &DataEnum, tag: &str) -> syn::Result<TokenStream2> {
         })
         .collect::<Result<Vec<_>, _>>()?;
 
+    let named_match = if named_cases.is_empty() {
+        quote!()
+    } else {
+        quote! {
+            if value.is_record() || value.is_map() {
+                let mut record = <HashMap::<String, Value>>::decode(value)?;
+
+                let tag = record
+                    .remove(#tag)
+                    .ok_or(DecodeError::UnknownTag(#tag))
+                    .and_then(<String as DecodeItfValue>::decode)?;
+
+                match tag.as_str() {
+                    #(#named_cases ,)*
+
+                    _ => Err(DecodeError::UnknownVariant(tag)),
+                }
+            } else
+        }
+    };
+
     Ok(quote! {
         use ::std::collections::HashMap;
         use ::apalache_itf::{Value, DecodeItfValue, DecodeError};
 
-        if value.is_string() {
-            #unit_case
-        } else if value.is_record() || value.is_map() {
-            let mut record = <HashMap::<String, Value>>::decode(value)?;
-
-            let tag = record
-                .remove(#tag)
-                .ok_or(DecodeError::UnknownTag(#tag))
-                .and_then(<String as DecodeItfValue>::decode)?;
-
-            match tag.as_str() {
-                #(#other_cases ,)*
-
-                _ => Err(DecodeError::UnknownVariant(tag)),
-            }
-        } else {
-            Err(DecodeError::InvalidType("record"))
+        #unit_match
+        #named_match
+        {
+            Err(DecodeError::InvalidType("record or string"))
         }
     })
 }
