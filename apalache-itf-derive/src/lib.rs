@@ -15,7 +15,8 @@ pub fn derive_decode_itf_value(input: TokenStream) -> TokenStream {
     let generics = add_trait_bounds(input.generics);
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
-    let decode = itf_decode(&input.data, &input.attrs);
+    let decode =
+        itf_decode(&input.data, &input.attrs).unwrap_or_else(syn::Error::into_compile_error);
 
     let expanded = quote! {
         impl #impl_generics ::apalache_itf::DecodeItfValue for #name #ty_generics
@@ -37,7 +38,8 @@ pub fn derive_try_from_raw_state(input: TokenStream) -> TokenStream {
     let generics = add_trait_bounds(input.generics);
     let (impl_generics, ty_generics, where_clause) = generics.split_for_impl();
 
-    let try_from = try_from_raw_state(&input.data, &input.attrs);
+    let try_from = try_from_raw_state(&input.data, &input.attrs)
+        .unwrap_or_else(syn::Error::into_compile_error);
 
     let expanded = quote! {
         impl #impl_generics TryFrom<::apalache_itf::raw::State> for #name #ty_generics
@@ -66,23 +68,23 @@ fn add_trait_bounds(mut generics: Generics) -> Generics {
     generics
 }
 
-fn itf_decode(data: &Data, attrs: &[Attribute]) -> TokenStream2 {
+fn itf_decode(data: &Data, attrs: &[Attribute]) -> syn::Result<TokenStream2> {
     match *data {
         Data::Struct(ref data) => match data.fields {
             Fields::Named(ref fields) => {
-                let body = derive_struct_named(quote!(Self), fields, quote!(map));
+                let body = derive_struct_named(quote!(Self), fields, quote!(map))?;
 
-                quote! {
+                Ok(quote! {
                     use ::std::collections::HashMap;
                     use ::apalache_itf::{Value, DecodeItfValue};
 
                     let mut map = <HashMap<String, Value> as DecodeItfValue>::decode(value)?;
 
                     #body
-                }
+                })
             }
             Fields::Unnamed(ref fields) => derive_struct_unnamed(fields),
-            Fields::Unit => quote!(Self),
+            Fields::Unit => Ok(quote!(Self)),
         },
 
         Data::Enum(ref data) => {
@@ -91,18 +93,19 @@ fn itf_decode(data: &Data, attrs: &[Attribute]) -> TokenStream2 {
                 .iter()
                 .all(|v| matches!(v.fields, Fields::Unit))
             {
-                unit_enum(data)
+                derive_unit_enum(data)
             } else if data
                 .variants
                 .iter()
                 .all(|v| matches!(v.fields, Fields::Named(_)))
             {
                 let itf_attrs = parse_itf_attrs(attrs);
-                named_enum(data, &itf_attrs.tag)
+                derive_enum(data, &itf_attrs.tag)
             } else {
-                quote! {
-                    ::std::compile_error!("only unit variants or named fields variants are supported")
-                }
+                Err(syn::Error::new_spanned(
+                    data.enum_token,
+                    "only unit variants or named fields variants can derive `DecodeItfValue`",
+                ))
             }
         }
 
@@ -110,27 +113,33 @@ fn itf_decode(data: &Data, attrs: &[Attribute]) -> TokenStream2 {
     }
 }
 
-fn named_enum(data: &DataEnum, tag: &str) -> TokenStream2 {
-    let cases = data.variants.iter().map(|v| {
-        let fields = match v.fields {
-            Fields::Named(ref fields) => fields,
-            _ => unreachable!(),
-        };
+fn derive_enum(data: &DataEnum, tag: &str) -> syn::Result<TokenStream2> {
+    let cases = data
+        .variants
+        .iter()
+        .map(|v| match &v.fields {
+            Fields::Unit => derive_unit_variant(v),
+            Fields::Named(fields) => {
+                let ident = &v.ident;
+                let attrs = parse_itf_attrs(&v.attrs);
+                let name = attrs.rename.unwrap_or_else(|| ident.to_string());
+                let cons = quote!(Self::#ident);
+                let extract = derive_struct_named(cons, fields, quote!(record))?;
 
-        let ident = &v.ident;
-        let attrs = parse_itf_attrs(&v.attrs);
-        let name = attrs.rename.unwrap_or_else(|| ident.to_string());
-        let cons = quote!(Self::#ident);
-        let extract = derive_struct_named(cons, fields, quote!(record));
-
-        quote! {
-            #name => {
-                #extract
+                Ok(quote! {
+                    #name => {
+                        #extract
+                    }
+                })
             }
-        }
-    });
+            Fields::Unnamed(f) => Err(syn::Error::new_spanned(
+                &f.unnamed,
+                "only enum with unit or named variants can derive `DecodeItfValue`",
+            )),
+        })
+        .collect::<Result<Vec<_>, _>>()?;
 
-    quote! {
+    Ok(quote! {
         use ::std::collections::HashMap;
         use ::apalache_itf::{Value, DecodeItfValue, DecodeError};
 
@@ -146,48 +155,62 @@ fn named_enum(data: &DataEnum, tag: &str) -> TokenStream2 {
 
             _ => Err(DecodeError::UnknownVariant(tag)),
         }
-    }
+    })
 }
 
-fn unit_enum(data: &DataEnum) -> TokenStream2 {
-    let cases = data.variants.iter().map(|v| match v.fields {
-        Fields::Unit => unit_variant(v),
-        _ => unreachable!(),
-    });
+fn derive_unit_enum(data: &DataEnum) -> syn::Result<TokenStream2> {
+    let cases = data
+        .variants
+        .iter()
+        .map(|v| match v.fields {
+            Fields::Unit => derive_unit_variant(v),
+            _ => Err(syn::Error::new_spanned(
+                v,
+                "all variants should have been unit",
+            )),
+        })
+        .collect::<Result<Vec<_>, _>>()?;
 
-    quote! {
+    Ok(quote! {
         use ::apalache_itf::{Value, DecodeItfValue, DecodeError};
 
         match value {
             #(#cases, )*
             _ => Err(DecodeError::InvalidType("string"))
         }
-    }
+    })
 }
 
-fn unit_variant(v: &Variant) -> TokenStream2 {
+fn derive_unit_variant(v: &Variant) -> syn::Result<TokenStream2> {
     assert!(matches!(v.fields, Fields::Unit));
 
     let name = &v.ident;
     let attrs = parse_itf_attrs(&v.attrs);
     let value = attrs.rename.unwrap_or_else(|| name.to_string());
 
-    quote_spanned! { v.span() =>
+    Ok(quote_spanned! { v.span() =>
         Value::String(s) if s == #value => Ok(Self::#name)
-    }
+    })
 }
 
-fn try_from_raw_state(data: &Data, _attrs: &[Attribute]) -> TokenStream2 {
-    match *data {
+fn try_from_raw_state(data: &Data, _attrs: &[Attribute]) -> syn::Result<TokenStream2> {
+    match data {
         Data::Struct(ref data) => match data.fields {
             Fields::Named(ref fields) => {
                 derive_struct_named(quote!(Self), fields, quote!(raw_state.values))
             }
             Fields::Unnamed(ref fields) => derive_struct_unnamed(fields),
-            Fields::Unit => quote!(Self),
+            Fields::Unit => Ok(quote!(Self)),
         },
 
-        Data::Enum(_) | Data::Union(_) => unimplemented!(),
+        Data::Enum(e) => Err(syn::Error::new_spanned(
+            e.enum_token,
+            "only structs can derive `FromRawState`",
+        )),
+        Data::Union(u) => Err(syn::Error::new_spanned(
+            u.union_token,
+            "only structs can derive `FromRawState`",
+        )),
     }
 }
 
@@ -195,7 +218,7 @@ fn derive_struct_named(
     cons: TokenStream2,
     fields: &FieldsNamed,
     map: TokenStream2,
-) -> TokenStream2 {
+) -> syn::Result<TokenStream2> {
     let recurse = fields.named.iter().map(|f| {
         let name = f.ident.as_ref().unwrap();
         let ty = &f.ty;
@@ -211,20 +234,20 @@ fn derive_struct_named(
         }
     });
 
-    quote! {
+    Ok(quote! {
         Ok(#cons {
             #(#recurse ,)*
         })
-    }
+    })
 }
 
-fn derive_struct_unnamed(fields: &FieldsUnnamed) -> TokenStream2 {
+fn derive_struct_unnamed(fields: &FieldsUnnamed) -> syn::Result<TokenStream2> {
     let types = fields_to_tuple_type(fields);
 
-    quote! {
+    Ok(quote! {
         use ::apalache_itf::DecodeItfValue;
         Ok(<#types as DecodeItfValue>::decode(value))
-    }
+    })
 }
 
 #[derive(Debug)]

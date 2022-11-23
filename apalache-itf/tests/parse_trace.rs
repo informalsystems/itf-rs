@@ -97,12 +97,3 @@ fn insufficent_success_9() {
     let trace = parse_raw_trace::<State>(raw_trace).unwrap();
     dbg!(trace);
 }
-
-// #[test]
-// #[should_panic]
-// fn enum_with_unnamed_variants() {
-//     #[derive(Clone, Debug, DecodeItfValue)]
-//     enum Test {
-//         Foo(String),
-//     }
-// }
