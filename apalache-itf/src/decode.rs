@@ -24,6 +24,15 @@ where
     fn decode(value: Value) -> Result<Self, DecodeError>;
 }
 
+impl<T> DecodeItfValue for Box<T>
+where
+    T: DecodeItfValue,
+{
+    fn decode(value: Value) -> Result<Self, DecodeError> {
+        T::decode(value).map(Box::new)
+    }
+}
+
 macro_rules! decode {
     ($name:expr, $ty:ty, $cons:pat, $x:expr) => {
         impl DecodeItfValue for $ty {

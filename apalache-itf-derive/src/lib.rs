@@ -5,7 +5,8 @@ use proc_macro2::TokenStream as TokenStream2;
 use quote::{quote, quote_spanned};
 use syn::{
     parse_macro_input, parse_quote, spanned::Spanned, Attribute, Data, DataEnum, DeriveInput,
-    Fields, FieldsNamed, FieldsUnnamed, GenericParam, Generics, Lit, Meta, NestedMeta, Variant,
+    Fields, FieldsNamed, FieldsUnnamed, GenericParam, Generics, Ident, Lit, Meta, NestedMeta,
+    Variant,
 };
 
 #[proc_macro_derive(DecodeItfValue, attributes(itf))]
@@ -256,10 +257,12 @@ fn derive_struct_named(
 
 fn derive_struct_unnamed(fields: &FieldsUnnamed) -> syn::Result<TokenStream2> {
     let types = fields_to_tuple_type(fields);
+    let vars = fields_to_vars(fields);
 
     Ok(quote! {
         use ::apalache_itf::DecodeItfValue;
-        Ok(<#types as DecodeItfValue>::decode(value))
+        let (#vars) = <#types as DecodeItfValue>::decode(value)?;
+        Ok(Self(#vars))
     })
 }
 
@@ -316,5 +319,17 @@ fn fields_to_tuple_type(fields: &FieldsUnnamed) -> TokenStream2 {
 
     quote! {
         (#(#types ,)*)
+    }
+}
+
+fn fields_to_vars(fields: &FieldsUnnamed) -> TokenStream2 {
+    let vars = fields
+        .unnamed
+        .iter()
+        .enumerate()
+        .map(|(i, f)| Ident::new(&format!("f{i}"), f.span()));
+
+    quote! {
+        #(#vars ,)*
     }
 }
