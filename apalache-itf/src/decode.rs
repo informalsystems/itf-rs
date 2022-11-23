@@ -1,5 +1,4 @@
 use itertools::Itertools;
-use num_bigint::BigInt;
 use thiserror::Error;
 
 use crate::value::Value;
@@ -61,9 +60,18 @@ macro_rules! decode_tuple {
 
 decode!("value", Value, v, v);
 decode!("int", i64, Value::Int(n), n);
-decode!("bigint", BigInt, Value::BigInt(n), n.into_bigint());
 decode!("boolean", bool, Value::Boolean(n), n);
 decode!("string", String, Value::String(n), n);
+
+impl DecodeItfValue for num_bigint::BigInt {
+    fn decode(value: Value) -> Result<Self, DecodeError> {
+        match value {
+            Value::BigInt(n) => Ok(n.into_bigint()),
+            Value::Int(n) => Ok(num_bigint::BigInt::from(n)),
+            _ => Err(DecodeError::InvalidType("bigint")),
+        }
+    }
+}
 
 decode_tuple!(A B);
 decode_tuple!(A B C);
