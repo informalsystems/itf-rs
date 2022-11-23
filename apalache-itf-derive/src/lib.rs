@@ -88,25 +88,8 @@ fn itf_decode(data: &Data, attrs: &[Attribute]) -> syn::Result<TokenStream2> {
         },
 
         Data::Enum(ref data) => {
-            if data
-                .variants
-                .iter()
-                .all(|v| matches!(v.fields, Fields::Unit))
-            {
-                derive_unit_enum(data)
-            } else if data
-                .variants
-                .iter()
-                .all(|v| matches!(v.fields, Fields::Named(_)))
-            {
-                let itf_attrs = parse_itf_attrs(attrs);
-                derive_enum(data, &itf_attrs.tag)
-            } else {
-                Err(syn::Error::new_spanned(
-                    data.enum_token,
-                    "only unit variants or named fields variants can derive `DecodeItfValue`",
-                ))
-            }
+            let itf_attrs = parse_itf_attrs(attrs);
+            derive_enum(data, &itf_attrs.tag)
         }
 
         Data::Union(_) => unimplemented!(),
@@ -114,12 +97,17 @@ fn itf_decode(data: &Data, attrs: &[Attribute]) -> syn::Result<TokenStream2> {
 }
 
 fn derive_enum(data: &DataEnum, tag: &str) -> syn::Result<TokenStream2> {
-    let cases = data
+    let (unit_variants, other_variants): (Vec<_>, Vec<_>) = data
         .variants
         .iter()
-        .map(|v| match &v.fields {
-            Fields::Unit => derive_unit_variant(v),
-            Fields::Named(fields) => {
+        .partition(|v| matches!(v.fields, Fields::Unit));
+
+    let unit_case = derive_unit_enum(&unit_variants)?;
+
+    let other_cases = other_variants
+        .iter()
+        .map(|v| match v.fields {
+            Fields::Named(ref fields) => {
                 let ident = &v.ident;
                 let attrs = parse_itf_attrs(&v.attrs);
                 let name = attrs.rename.unwrap_or_else(|| ident.to_string());
@@ -132,9 +120,13 @@ fn derive_enum(data: &DataEnum, tag: &str) -> syn::Result<TokenStream2> {
                     }
                 })
             }
-            Fields::Unnamed(f) => Err(syn::Error::new_spanned(
-                &f.unnamed,
+            Fields::Unnamed(_) => Err(syn::Error::new_spanned(
+                &v.ident,
                 "only enum with unit or named variants can derive `DecodeItfValue`",
+            )),
+            Fields::Unit => Err(syn::Error::new_spanned(
+                &v.ident,
+                "internal error: no unit variants should have been found",
             )),
         })
         .collect::<Result<Vec<_>, _>>()?;
@@ -143,39 +135,43 @@ fn derive_enum(data: &DataEnum, tag: &str) -> syn::Result<TokenStream2> {
         use ::std::collections::HashMap;
         use ::apalache_itf::{Value, DecodeItfValue, DecodeError};
 
-        let mut record = <HashMap::<String, Value>>::decode(value)?;
+        if value.is_string() {
+            #unit_case
+        } else if value.is_record() || value.is_map() {
+            let mut record = <HashMap::<String, Value>>::decode(value)?;
 
-        let tag = record
-            .remove(#tag)
-            .ok_or(DecodeError::UnknownTag(#tag))
-            .and_then(<String as DecodeItfValue>::decode)?;
+            let tag = record
+                .remove(#tag)
+                .ok_or(DecodeError::UnknownTag(#tag))
+                .and_then(<String as DecodeItfValue>::decode)?;
 
-        match tag.as_str() {
-            #(#cases ,)*
+            match tag.as_str() {
+                #(#other_cases ,)*
 
-            _ => Err(DecodeError::UnknownVariant(tag)),
+                _ => Err(DecodeError::UnknownVariant(tag)),
+            }
+        } else {
+            Err(DecodeError::InvalidType("record"))
         }
     })
 }
 
-fn derive_unit_enum(data: &DataEnum) -> syn::Result<TokenStream2> {
-    let cases = data
-        .variants
+fn derive_unit_enum(variants: &[&Variant]) -> syn::Result<TokenStream2> {
+    let cases = variants
         .iter()
-        .map(|v| match v.fields {
-            Fields::Unit => derive_unit_variant(v),
-            _ => Err(syn::Error::new_spanned(
-                v,
-                "all variants should have been unit",
-            )),
+        .filter_map(|v| match v.fields {
+            Fields::Unit => Some(derive_unit_variant(v)),
+            _ => None,
         })
         .collect::<Result<Vec<_>, _>>()?;
 
     Ok(quote! {
         use ::apalache_itf::{Value, DecodeItfValue, DecodeError};
 
-        match value {
+        match &value {
             #(#cases, )*
+
+            Value::String(name) => Err(DecodeError::UnknownVariant(name.to_string())),
             _ => Err(DecodeError::InvalidType("string"))
         }
     })

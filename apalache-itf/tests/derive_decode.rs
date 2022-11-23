@@ -32,12 +32,12 @@ fn enum_with_named_variants() {
     }
 }
 
-// #[test]
-// #[allow(dead_code)]
-// fn enum_with_mixed_variants() {
-//     #[derive(DecodeItfValue)]
-//     enum Mixed {
-//         Foo { foo: i64, bar: bool },
-//         Bar,
-//     }
-// }
+#[test]
+#[allow(dead_code)]
+fn enum_with_mixed_variants() {
+    #[derive(DecodeItfValue)]
+    enum Mixed {
+        Foo { foo: i64, bar: bool },
+        Bar,
+    }
+}
