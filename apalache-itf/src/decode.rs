@@ -1,4 +1,3 @@
-use itertools::Itertools;
 use thiserror::Error;
 
 use crate::value::Value;
@@ -91,7 +90,7 @@ where
 {
     fn decode(value: Value) -> Result<Self, DecodeError> {
         if let Value::List(l) = value {
-            l.into_iter().map(T::decode).try_collect()
+            l.into_iter().map(T::decode).collect::<Result<_, _>>()
         } else {
             Err(DecodeError::InvalidType("list"))
         }
@@ -109,7 +108,7 @@ where
 {
     fn decode(value: Value) -> Result<Self, DecodeError> {
         if let Value::Set(s) = value {
-            s.into_iter().map(T::decode).try_collect()
+            s.into_iter().map(T::decode).collect::<Result<_, _>>()
         } else {
             Err(DecodeError::InvalidType("set"))
         }
@@ -130,14 +129,14 @@ where
                 .map(|(k, v)| {
                     K::decode(Value::String(k)).and_then(|k| V::decode(v).map(|v| (k, v)))
                 })
-                .try_collect(),
+                .collect::<Result<_, _>>(),
 
             Value::Record(m) => m
                 .into_iter()
                 .map(|(k, v)| {
                     K::decode(Value::String(k)).and_then(|k| V::decode(v).map(|v| (k, v)))
                 })
-                .try_collect(),
+                .collect::<Result<_, _>>(),
 
             _ => Err(DecodeError::InvalidType("map")),
         }

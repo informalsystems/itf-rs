@@ -1,5 +1,3 @@
-use itertools::Itertools;
-
 mod decode;
 pub use decode::*;
 
@@ -32,7 +30,7 @@ where
         .states
         .into_iter()
         .map(TryFrom::try_from)
-        .try_collect()?;
+        .collect::<Result<_, _>>()?;
 
     Ok(Trace {
         meta: raw_trace.meta,
