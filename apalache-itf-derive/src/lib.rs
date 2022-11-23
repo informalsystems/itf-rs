@@ -77,16 +77,18 @@ fn itf_decode(data: &Data) -> TokenStream2 {
                     let value = attrs.rename.unwrap_or_else(|| name.to_string());
 
                     quote_spanned! { f.span() =>
-                        #name : <#ty as ::apalache_itf::DecodeItfValue>::decode(
+                        #name : <#ty as DecodeItfValue>::decode(
                             map
                                 .remove(#value)
-                                .ok_or(::apalache_itf::DecodeError::FieldNotFound(#value))?
+                                .ok_or(DecodeError::FieldNotFound(#value))?
                         )?
                     }
                 });
 
                 quote! {
-                    let mut map = <HashMap<String, ::apalache_itf::Value> as DecodeItfValue>::decode(value)?;
+                    use ::apalache_itf::{Value, DecodeItfValue, DecodeError};
+
+                    let mut map = <HashMap<String, Value> as DecodeItfValue>::decode(value)?;
 
                     Ok(Self {
                         #(#recurse ,)*
@@ -97,7 +99,9 @@ fn itf_decode(data: &Data) -> TokenStream2 {
                 let types = fields_to_tuple_type(fields);
 
                 quote! {
-                    Ok(<#types as ::apalache_itf::DecodeItfValue>::decode(value))
+                    use ::apalache_itf::DecodeItfValue;
+
+                    Ok(<#types as DecodeItfValue>::decode(value))
                 }
             }
             Fields::Unit => {
@@ -119,7 +123,7 @@ fn itf_decode(data: &Data) -> TokenStream2 {
             });
 
             quote! {
-                use ::apalache_itf::Value;
+                use ::apalache_itf::{Value, DecodeItfValue, DecodeError};
 
                 match value {
                     #(#variants, )*

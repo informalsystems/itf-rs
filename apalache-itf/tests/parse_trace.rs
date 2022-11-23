@@ -1,6 +1,6 @@
 use std::collections::{HashMap, HashSet};
 
-use apalache_itf::{parse_raw_trace, raw, DecodeError, DecodeItfValue, TryFromRawState};
+use apalache_itf::{parse_raw_trace, raw, DecodeItfValue, TryFromRawState};
 
 #[test]
 fn cannibals() {
