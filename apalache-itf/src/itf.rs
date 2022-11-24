@@ -171,11 +171,11 @@ deserialize_itf_tuple!(4,  0 A 1 B 2 C 3 D);
 deserialize_itf_tuple!(5,  0 A 1 B 2 C 3 D 4 E);
 deserialize_itf_tuple!(6,  0 A 1 B 2 C 3 D 4 E 5 F);
 deserialize_itf_tuple!(7,  0 A 1 B 2 C 3 D 4 E 5 F 6 G);
-deserialize_itf_tuple!(8,  0 A 1 B 2 C 3 D 4 E 5 F 6 G 7 H);
-deserialize_itf_tuple!(9,  0 A 1 B 2 C 3 D 4 E 5 F 6 G 7 H 8 I);
-deserialize_itf_tuple!(10, 0 A 1 B 2 C 3 D 4 E 5 F 6 G 7 H 8 I 9 J);
-deserialize_itf_tuple!(11, 0 A 1 B 2 C 3 D 4 E 5 F 6 G 7 H 8 I 9 J 10 K);
-deserialize_itf_tuple!(12, 0 A 1 B 2 C 3 D 4 E 5 F 6 G 7 H 8 I 9 J 10 K 11 L);
+// deserialize_itf_tuple!(8,  0 A 1 B 2 C 3 D 4 E 5 F 6 G 7 H);
+// deserialize_itf_tuple!(9,  0 A 1 B 2 C 3 D 4 E 5 F 6 G 7 H 8 I);
+// deserialize_itf_tuple!(10, 0 A 1 B 2 C 3 D 4 E 5 F 6 G 7 H 8 I 9 J);
+// deserialize_itf_tuple!(11, 0 A 1 B 2 C 3 D 4 E 5 F 6 G 7 H 8 I 9 J 10 K);
+// deserialize_itf_tuple!(12, 0 A 1 B 2 C 3 D 4 E 5 F 6 G 7 H 8 I 9 J 10 K 11 L);
 
 #[cfg(test)]
 mod tests {
@@ -228,7 +228,49 @@ mod tests {
     }
 
     #[test]
-    fn deserialize_tuple() {
+    fn deserialize_tuple_2() {
+        let json = json!({
+            "#tup": [
+                { "#bigint": "1234567891011121314151617181920" },
+                1234,
+            ]
+        });
+
+        let tuple: ItfTuple<(ItfBigInt, ItfInt)> = serde_json::from_value(json).unwrap();
+
+        assert_eq!(
+            tuple.0,
+            (
+                Itf("1234567891011121314151617181920".parse().unwrap()),
+                1234,
+            )
+        );
+    }
+
+    #[test]
+    fn deserialize_tuple3() {
+        let json = json!({
+            "#tup": [
+                { "#bigint": "1234567891011121314151617181920" },
+                1234,
+                "Hello world",
+            ]
+        });
+
+        let tuple: ItfTuple<(ItfBigInt, ItfInt, ItfString)> = serde_json::from_value(json).unwrap();
+
+        assert_eq!(
+            tuple.0,
+            (
+                Itf("1234567891011121314151617181920".parse().unwrap()),
+                1234,
+                "Hello world".to_string(),
+            )
+        );
+    }
+
+    #[test]
+    fn deserialize_tuple4() {
         let json = json!({
             "#tup": [
                 { "#bigint": "1234567891011121314151617181920" },
@@ -248,6 +290,108 @@ mod tests {
                 1234,
                 "Hello world".to_string(),
                 true
+            )
+        );
+    }
+
+    #[test]
+    fn deserialize_tuple5() {
+        let json = json!({
+            "#tup": [
+                { "#bigint": "1234567891011121314151617181920" },
+                1234,
+                "Hello world",
+                true,
+                { "#set": [1, 2, 3] }
+            ]
+        });
+
+        let tuple: ItfTuple<(ItfBigInt, ItfInt, ItfString, ItfBool, ItfSet<ItfInt>)> =
+            serde_json::from_value(json).unwrap();
+
+        assert_eq!(
+            tuple.0,
+            (
+                Itf("1234567891011121314151617181920".parse().unwrap()),
+                1234,
+                "Hello world".to_string(),
+                true,
+                Itf([1, 2, 3].into_iter().collect())
+            )
+        );
+    }
+
+    #[test]
+    #[allow(clippy::type_complexity)]
+    fn deserialize_tuple6() {
+        let json = json!({
+            "#tup": [
+                { "#bigint": "1234567891011121314151617181920" },
+                1234,
+                "Hello world",
+                true,
+                { "#set": [1, 2, 3] },
+                { "#map": [[1, true], [2, false], [3, true]] }
+            ]
+        });
+
+        let tuple: ItfTuple<(
+            ItfBigInt,
+            ItfInt,
+            ItfString,
+            ItfBool,
+            ItfSet<ItfInt>,
+            ItfMap<ItfInt, ItfBool>,
+        )> = serde_json::from_value(json).unwrap();
+
+        assert_eq!(
+            tuple.0,
+            (
+                Itf("1234567891011121314151617181920".parse().unwrap()),
+                1234,
+                "Hello world".to_string(),
+                true,
+                Itf([1, 2, 3].into_iter().collect()),
+                Itf([(1, true), (2, false), (3, true)].into_iter().collect())
+            )
+        );
+    }
+
+    #[test]
+    #[allow(clippy::type_complexity)]
+    fn deserialize_tuple7() {
+        let json = json!({
+            "#tup": [
+                { "#bigint": "1234567891011121314151617181920" },
+                1234,
+                "Hello world",
+                true,
+                { "#set": [ 1, 2, 3 ] },
+                { "#map": [ [1, true], [2, false], [3, true] ] },
+                { "#tup": [ { "#bigint": "1" }, "hello"] },
+            ]
+        });
+
+        let tuple: ItfTuple<(
+            ItfBigInt,
+            ItfInt,
+            ItfString,
+            ItfBool,
+            ItfSet<ItfInt>,
+            ItfMap<ItfInt, ItfBool>,
+            ItfTuple<(ItfBigInt, ItfString)>,
+        )> = serde_json::from_value(json).unwrap();
+
+        assert_eq!(
+            tuple.0,
+            (
+                Itf("1234567891011121314151617181920".parse().unwrap()),
+                1234,
+                "Hello world".to_string(),
+                true,
+                Itf([1, 2, 3].into_iter().collect()),
+                Itf([(1, true), (2, false), (3, true)].into_iter().collect()),
+                Itf((Itf(BigInt::from(1)), "hello".to_string()))
             )
         );
     }
