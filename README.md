@@ -16,6 +16,10 @@ Rust library for consuming [Apalache ITF Traces][itf-adr].
 **Trace:** [`MissionariesAndCannibals.itf.json`](./apalache-itf/tests/fixtures/MissionariesAndCannibals.itf.json)
 
 ```rust
+use serde::Deserialize;
+
+use apalache_itf::{ItfMap, ItfSet};
+
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Deserialize)]
 enum Bank {
     #[serde(rename = "N")]
@@ -41,7 +45,6 @@ enum Person {
 }
 
 #[derive(Clone, Debug, Deserialize)]
-#[allow(dead_code)]
 struct State {
     pub bank_of_boat: Bank,
     pub who_is_on_bank: ItfMap<Bank, ItfSet<Person>>,
