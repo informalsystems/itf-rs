@@ -16,25 +16,39 @@ Rust library for consuming [Apalache ITF Traces][itf-adr].
 **Trace:** [`MissionariesAndCannibals.itf.json`](./apalache-itf/tests/fixtures/MissionariesAndCannibals.itf.json)
 
 ```rust
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, DecodeItfValue)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Deserialize)]
 enum Bank {
-    N,
-    W,
-    E,
-    S,
+    #[serde(rename = "N")]
+    North,
+    #[serde(rename = "W")]
+    West,
+    #[serde(rename = "E")]
+    East,
+    #[serde(rename = "S")]
+    South,
 }
 
-#[derive(Clone, Debug, TryFromRawState)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Deserialize)]
+enum Person {
+    #[serde(rename = "c1_OF_PERSON")]
+    Cannibal1,
+    #[serde(rename = "c2_OF_PERSON")]
+    Cannibal2,
+    #[serde(rename = "m1_OF_PERSON")]
+    Missionary1,
+    #[serde(rename = "m2_OF_PERSON")]
+    Missionary2,
+}
+
+#[derive(Clone, Debug, Deserialize)]
 #[allow(dead_code)]
 struct State {
-    #[itf(rename = "bank_of_boat")]
-    pub boat_is_on_bank: Bank,
-    pub who_is_on_bank: HashMap<Bank, HashSet<String>>,
+    pub bank_of_boat: Bank,
+    pub who_is_on_bank: ItfMap<Bank, ItfSet<Person>>,
 }
 
 let data = include_str!("../tests/fixtures/MissionariesAndCannibals.itf.json");
-let raw_trace: raw::Trace = serde_json::from_str(data).unwrap();
-let trace = parse_raw_trace::<State>(raw_trace).unwrap();
+let trace: Trace<State> = serde_json::from_str(data).unwrap();
 
 dbg!(trace);
 ```
@@ -64,79 +78,127 @@ trace = Trace {
     loop: None,
     states: [
         State {
-            boat_is_on_bank: East,
-            who_is_on_bank: {
-                West: {},
-                East: {
-                    Cannibal1,
-                    Cannibal2,
-                    Missionary2,
-                    Missionary1,
+            meta: StateMeta {
+                index: Some(
+                    0,
+                ),
+                other: {},
+            },
+            value: State {
+                bank_of_boat: East,
+                who_is_on_bank: {
+                    West: {},
+                    East: {
+                        Missionary2,
+                        Cannibal1,
+                        Cannibal2,
+                        Missionary1,
+                    },
                 },
             },
         },
         State {
-            boat_is_on_bank: West,
-            who_is_on_bank: {
-                East: {
-                    Missionary1,
-                    Cannibal1,
-                },
-                West: {
-                    Missionary2,
-                    Cannibal2,
+            meta: StateMeta {
+                index: Some(
+                    1,
+                ),
+                other: {},
+            },
+            value: State {
+                bank_of_boat: West,
+                who_is_on_bank: {
+                    West: {
+                        Missionary2,
+                        Cannibal2,
+                    },
+                    East: {
+                        Missionary1,
+                        Cannibal1,
+                    },
                 },
             },
         },
         State {
-            boat_is_on_bank: East,
-            who_is_on_bank: {
-                East: {
-                    Cannibal1,
-                    Missionary1,
-                    Missionary2,
-                },
-                West: {
-                    Cannibal2,
+            meta: StateMeta {
+                index: Some(
+                    2,
+                ),
+                other: {},
+            },
+            value: State {
+                bank_of_boat: East,
+                who_is_on_bank: {
+                    West: {
+                        Cannibal2,
+                    },
+                    East: {
+                        Missionary2,
+                        Cannibal1,
+                        Missionary1,
+                    },
                 },
             },
         },
         State {
-            boat_is_on_bank: West,
-            who_is_on_bank: {
-                West: {
-                    Cannibal2,
-                    Missionary2,
-                    Missionary1,
-                },
-                East: {
-                    Cannibal1,
+            meta: StateMeta {
+                index: Some(
+                    3,
+                ),
+                other: {},
+            },
+            value: State {
+                bank_of_boat: West,
+                who_is_on_bank: {
+                    West: {
+                        Missionary1,
+                        Cannibal2,
+                        Missionary2,
+                    },
+                    East: {
+                        Cannibal1,
+                    },
                 },
             },
         },
         State {
-            boat_is_on_bank: East,
-            who_is_on_bank: {
-                East: {
-                    Cannibal1,
-                    Cannibal2,
-                },
-                West: {
-                    Missionary1,
-                    Missionary2,
+            meta: StateMeta {
+                index: Some(
+                    4,
+                ),
+                other: {},
+            },
+            value: State {
+                bank_of_boat: East,
+                who_is_on_bank: {
+                    East: {
+                        Cannibal2,
+                        Cannibal1,
+                    },
+                    West: {
+                        Missionary1,
+                        Missionary2,
+                    },
                 },
             },
         },
         State {
-            boat_is_on_bank: West,
-            who_is_on_bank: {
-                West: {
-                    Missionary2,
-                    Cannibal1,
-                    Cannibal2,
-                    Missionary1,
+            meta: StateMeta {
+                index: Some(
+                    5,
+                ),
+                other: {},
+            },
+            value: State {
+                bank_of_boat: West,
+                who_is_on_bank: {
+                    East: {},
+                    West: {
+                        Cannibal1,
+                        Cannibal2,
+                        Missionary1,
+                        Missionary2,
+                    },
                 },
-                East: {},
             },
         },
     ],
