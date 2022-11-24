@@ -1,81 +1,80 @@
-use std::collections::{HashMap, HashSet};
+use std::collections::HashMap;
 
-use apalache_itf::{parse_raw_trace, raw, DecodeItfValue, TryFromRawState};
+use apalache_itf::{Itf, ItfMap, ItfSet, StateMeta, TraceMeta};
 use num_bigint::BigInt;
+use serde::Deserialize;
 
 #[test]
 fn cannibals() {
-    #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, DecodeItfValue)]
+    #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Deserialize)]
     enum Bank {
-        #[itf(rename = "N")]
+        #[serde(rename = "N")]
         North,
-        #[itf(rename = "W")]
+        #[serde(rename = "W")]
         West,
-        #[itf(rename = "E")]
+        #[serde(rename = "E")]
         East,
-        #[itf(rename = "S")]
+        #[serde(rename = "S")]
         South,
     }
 
-    #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, DecodeItfValue)]
+    #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Deserialize)]
     enum Person {
-        #[itf(rename = "c1_OF_PERSON")]
+        #[serde(rename = "c1_OF_PERSON")]
         Cannibal1,
-        #[itf(rename = "c2_OF_PERSON")]
+        #[serde(rename = "c2_OF_PERSON")]
         Cannibal2,
-        #[itf(rename = "m1_OF_PERSON")]
+        #[serde(rename = "m1_OF_PERSON")]
         Missionary1,
-        #[itf(rename = "m2_OF_PERSON")]
+        #[serde(rename = "m2_OF_PERSON")]
         Missionary2,
     }
 
-    #[derive(Clone, Debug, TryFromRawState)]
+    #[derive(Clone, Debug, Deserialize)]
     #[allow(dead_code)]
     struct State {
-        #[itf(rename = "bank_of_boat")]
-        pub boat_is_on_bank: Bank,
-        pub who_is_on_bank: HashMap<Bank, HashSet<Person>>,
+        pub bank_of_boat: Bank,
+        pub who_is_on_bank: ItfMap<Bank, ItfSet<Person>>,
     }
 
     let data = include_str!("../tests/fixtures/MissionariesAndCannibals.itf.json");
-    let raw_trace: raw::Trace = serde_json::from_str(data).unwrap();
-    let trace = parse_raw_trace::<State>(raw_trace).unwrap();
+    let trace: Trace<State> = serde_json::from_str(data).unwrap();
 
     dbg!(trace);
 }
 
 #[test]
 fn insufficent_success_9() {
-    type Balance = HashMap<String, BigInt>;
-    type Balances = HashMap<String, Balance>;
+    type Balance = Itf<HashMap<String, Itf<BigInt>>>;
+    type Balances = Itf<HashMap<String, Balance>>;
 
-    #[derive(Copy, Clone, Debug, DecodeItfValue)]
+    #[derive(Copy, Clone, Debug, Deserialize)]
     enum Outcome {
-        #[itf(rename = "")]
+        #[serde(rename = "")]
         None,
-        #[itf(rename = "SUCCESS")]
+        #[serde(rename = "SUCCESS")]
         Success,
-        #[itf(rename = "DUPLICATE_DENOM")]
+        #[serde(rename = "DUPLICATE_DENOM")]
         DuplicateDenom,
-        #[itf(rename = "INSUFFICIENT_FUNDS")]
+        #[serde(rename = "INSUFFICIENT_FUNDS")]
         InsufficientFunds,
     }
 
-    #[derive(Clone, Debug, DecodeItfValue)]
+    #[derive(Clone, Debug, Deserialize)]
     #[allow(dead_code)]
     struct Coin {
-        amount: BigInt,
+        amount: Itf<BigInt>,
         denom: String,
     }
 
-    #[derive(Clone, Debug, DecodeItfValue)]
+    #[derive(Clone, Debug, Deserialize)]
     #[allow(dead_code)]
-    #[itf(tag = "tag")]
+    #[serde(tag = "tag")]
     enum Action {
-        #[itf(rename = "init")]
+        #[serde(rename = "init")]
         Init { balances: Balances },
 
-        #[itf(rename = "send")]
+        #[serde(rename = "send")]
         Send {
             receiver: String,
             sender: String,
@@ -83,7 +82,7 @@ fn insufficent_success_9() {
         },
     }
 
-    #[derive(Clone, Debug, TryFromRawState)]
+    #[derive(Clone, Debug, Deserialize)]
     #[allow(dead_code)]
     struct State {
         action: Action,
@@ -93,7 +92,32 @@ fn insufficent_success_9() {
     }
 
     let data = include_str!("../tests/fixtures/TestInsufficientSuccess9.itf.json");
-    let raw_trace: raw::Trace = serde_json::from_str(data).unwrap();
-    let trace = parse_raw_trace::<State>(raw_trace).unwrap();
+    let trace: Trace<State> = serde_json::from_str(data).unwrap();
     dbg!(trace);
+}
+
+#[derive(Default, Debug, Clone, PartialEq, Eq, Deserialize)]
+pub struct State<S> {
+    #[serde(rename = "#meta")]
+    pub meta: StateMeta,
+
+    #[serde(flatten)]
+    pub value: S,
+}
+
+#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
+pub struct Trace<S> {
+    #[serde(rename = "#meta")]
+    pub meta: TraceMeta,
+
+    #[serde(default)]
+    pub params: Vec<String>,
+
+    #[serde(default)]
+    pub vars: Vec<String>,
+
+    #[serde(default)]
+    pub r#loop: Option<u64>,
+
+    pub states: Vec<State<S>>,
 }
