@@ -1,8 +1,9 @@
 use std::collections::HashMap;
 
-use apalache_itf::{Itf, ItfMap, ItfSet, StateMeta, TraceMeta};
 use num_bigint::BigInt;
 use serde::Deserialize;
+
+use apalache_itf::{trace_from_str, Itf, ItfMap, ItfSet};
 
 #[test]
 fn cannibals() {
@@ -38,7 +39,7 @@ fn cannibals() {
     }
 
     let data = include_str!("../tests/fixtures/MissionariesAndCannibals.itf.json");
-    let trace: Trace<State> = serde_json::from_str(data).unwrap();
+    let trace = trace_from_str::<State>(data).unwrap();
 
     dbg!(trace);
 }
@@ -92,32 +93,7 @@ fn insufficent_success_9() {
     }
 
     let data = include_str!("../tests/fixtures/TestInsufficientSuccess9.itf.json");
-    let trace: Trace<State> = serde_json::from_str(data).unwrap();
+    let trace = trace_from_str::<State>(data).unwrap();
+
     dbg!(trace);
-}
-
-#[derive(Default, Debug, Clone, PartialEq, Eq, Deserialize)]
-pub struct State<S> {
-    #[serde(rename = "#meta")]
-    pub meta: StateMeta,
-
-    #[serde(flatten)]
-    pub value: S,
-}
-
-#[derive(Debug, Clone, PartialEq, Eq, Deserialize)]
-pub struct Trace<S> {
-    #[serde(rename = "#meta")]
-    pub meta: TraceMeta,
-
-    #[serde(default)]
-    pub params: Vec<String>,
-
-    #[serde(default)]
-    pub vars: Vec<String>,
-
-    #[serde(default)]
-    pub r#loop: Option<u64>,
-
-    pub states: Vec<State<S>>,
 }

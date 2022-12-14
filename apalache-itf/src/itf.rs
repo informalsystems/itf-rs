@@ -250,15 +250,15 @@ mod tests {
             ]
         });
 
-        let tuple: ItfTuple<(ItfBigInt, ItfInt)> = serde_json::from_value(json).unwrap();
+        let mut tuple: ItfTuple<(ItfBigInt, ItfInt)> = serde_json::from_value(json).unwrap();
 
         assert_eq!(
-            tuple.0,
-            (
-                Itf("1234567891011121314151617181920".parse().unwrap()),
-                1234,
-            )
+            tuple.deref().0,
+            Itf("1234567891011121314151617181920".parse().unwrap()),
         );
+
+        assert_eq!(tuple.deref().1, 1234);
+        assert_eq!(tuple.deref_mut().1, 1234);
     }
 
     #[test]
@@ -272,9 +272,10 @@ mod tests {
         });
 
         let tuple: ItfTuple<(ItfBigInt, ItfInt, ItfString)> = serde_json::from_value(json).unwrap();
+        let tuple = tuple.value();
 
         assert_eq!(
-            tuple.0,
+            tuple,
             (
                 Itf("1234567891011121314151617181920".parse().unwrap()),
                 1234,
