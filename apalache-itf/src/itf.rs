@@ -1,6 +1,6 @@
 use std::{
     collections::{HashMap, HashSet},
-    fmt::{Debug, Display},
+    fmt,
     hash::Hash,
     ops::{Deref, DerefMut},
 };
@@ -19,20 +19,20 @@ pub type ItfString = String;
 #[derive(Copy, Clone, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Itf<T>(T);
 
-impl<T> Debug for Itf<T>
+impl<T> fmt::Debug for Itf<T>
 where
-    T: Debug,
+    T: fmt::Debug,
 {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         self.0.fmt(f)
     }
 }
 
-impl<T> Display for Itf<T>
+impl<T> fmt::Display for Itf<T>
 where
-    T: Display,
+    T: fmt::Display,
 {
-    fn fmt(&self, f: &mut std::fmt::Formatter<'_>) -> std::fmt::Result {
+    fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         self.0.fmt(f)
     }
 }
@@ -40,12 +40,6 @@ where
 impl<T> Itf<T> {
     pub fn value(self) -> T {
         self.0
-    }
-}
-
-impl<T> From<T> for Itf<T> {
-    fn from(t: T) -> Self {
-        Self(t)
     }
 }
 
@@ -409,5 +403,12 @@ mod tests {
                 Itf((Itf(BigInt::from(1)), "hello".to_string()))
             )
         );
+    }
+
+    #[test]
+    fn display() {
+        let s = "1234567891011121314151617181920";
+        let itf: ItfBigInt = Itf(s.parse().unwrap());
+        assert_eq!(format!("{}", itf), s.to_string());
     }
 }
