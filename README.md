@@ -18,16 +18,19 @@ Rust library for consuming [Apalache ITF Traces][itf-adr].
 ```rust
 use serde::Deserialize;
 
-use apalache_itf::{ItfMap, ItfSet};
+use apalache_itf::{trace_from_str, ItfMap, ItfSet};
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Deserialize)]
 enum Bank {
     #[serde(rename = "N")]
     North,
+
     #[serde(rename = "W")]
     West,
+
     #[serde(rename = "E")]
     East,
+
     #[serde(rename = "S")]
     South,
 }
@@ -36,10 +39,13 @@ enum Bank {
 enum Person {
     #[serde(rename = "c1_OF_PERSON")]
     Cannibal1,
+
     #[serde(rename = "c2_OF_PERSON")]
     Cannibal2,
+
     #[serde(rename = "m1_OF_PERSON")]
     Missionary1,
+
     #[serde(rename = "m2_OF_PERSON")]
     Missionary2,
 }
@@ -51,7 +57,7 @@ struct State {
 }
 
 let data = include_str!("../tests/fixtures/MissionariesAndCannibals.itf.json");
-let trace: Trace<State> = serde_json::from_str(data).unwrap();
+let trace: Trace<State> = trace_from_str(data).unwrap();
 
 dbg!(trace);
 ```
@@ -78,7 +84,7 @@ trace = Trace {
         "bank_of_boat",
         "who_is_on_bank",
     ],
-    loop: None,
+    loop_index: None,
     states: [
         State {
             meta: StateMeta {
