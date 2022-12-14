@@ -228,6 +228,20 @@ mod tests {
     }
 
     #[test]
+    #[should_panic(expected = "expected tuple with 3 elements but found 2")]
+    fn deserialize_tuple_wrong_cardinality() {
+        let json = json!({
+            "#tup": [
+                { "#bigint": "1234567891011121314151617181920" },
+                1234,
+            ]
+        });
+
+        let _tuple: ItfTuple<(ItfBigInt, ItfInt, ItfString)> =
+            serde_json::from_value(json).unwrap();
+    }
+
+    #[test]
     fn deserialize_tuple_2() {
         let json = json!({
             "#tup": [
