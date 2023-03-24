@@ -223,7 +223,7 @@ We follow [Semantic Versioning](https://semver.org), though APIs are still under
 
 ## License
 
-Copyright © 2022 Informal Systems Inc. and itf-rs authors.
+Copyright © 2023 Informal Systems Inc. and itf-rs authors.
 
 Licensed under the Apache License, Version 2.0 (the "License"); you may not use the files in this repository except in compliance with the License. You may obtain a copy of the License at
 
