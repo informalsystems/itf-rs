@@ -9,8 +9,6 @@
 
 Rust library for consuming [Apalache ITF Traces][itf-adr].
 
-> ⚠️  This library is currently under heavy development.
-
 ## Example
 
 **Trace:** [`MissionariesAndCannibals.itf.json`](./apalache-itf/tests/fixtures/MissionariesAndCannibals.itf.json)
@@ -18,7 +16,7 @@ Rust library for consuming [Apalache ITF Traces][itf-adr].
 ```rust
 use serde::Deserialize;
 
-use apalache_itf::{trace_from_str, ItfMap, ItfSet};
+use itf::{trace_from_str, ItfMap, ItfSet};
 
 #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Deserialize)]
 enum Bank {

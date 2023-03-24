@@ -3,7 +3,7 @@ use std::collections::HashMap;
 use num_bigint::BigInt;
 use serde::Deserialize;
 
-use apalache_itf::{trace_from_str, Itf, ItfMap, ItfSet};
+use itf::{trace_from_str, Itf, ItfMap, ItfSet};
 
 #[test]
 fn cannibals() {
