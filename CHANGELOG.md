@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## Unreleased
+## v0.1.1
 
 - Add support for new `timestamp` field in meta section of ITF traces
 
