@@ -18,10 +18,8 @@ pub struct Map<K, V> {
 }
 
 impl<K, V> Map<K, V> {
-    pub fn new() -> Self {
-        Self {
-            map: BTreeMap::new(),
-        }
+    pub fn new(map: BTreeMap<K, V>) -> Self {
+        Self { map }
     }
 
     pub fn iter(&self) -> impl Iterator<Item = (&K, &V)> {

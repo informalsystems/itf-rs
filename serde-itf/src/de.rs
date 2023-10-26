@@ -1,3 +1,4 @@
+use std::collections::BTreeMap;
 use std::fmt;
 
 use num_traits::ToPrimitive;
@@ -8,7 +9,7 @@ use serde::de::{
 };
 use serde::Deserialize;
 
-use crate::value::{Map, Set, Tuple, Value};
+use crate::value::{BigInt, Map, Set, Tuple, Value};
 
 pub fn decode_value<T>(value: Value) -> Result<T, Error>
 where
@@ -116,7 +117,7 @@ impl<'de> Deserializer<'de> for Value {
             Value::Bool(v) => visitor.visit_bool(v),
             Value::Number(v) => visitor.visit_i64(v),
             Value::String(v) => visitor.visit_string(v),
-            Value::BigInt(v) => visitor.visit_i64(v.get().to_i64().unwrap()),
+            Value::BigInt(v) => visit_bigint(v, visitor),
             Value::List(v) => visit_list(v, visitor),
             Value::Tuple(v) => visit_tuple(v, visitor),
             Value::Set(v) => visit_set(v, visitor),
@@ -349,6 +350,18 @@ impl<'de> Deserializer<'de> for Value {
         drop(self);
         visitor.visit_unit()
     }
+}
+
+fn visit_bigint<'de, V>(v: BigInt, visitor: V) -> Result<V::Value, Error>
+where
+    V: Visitor<'de>,
+{
+    let map = vec![("#bigint".to_string(), Value::String(v.to_string()))]
+        .into_iter()
+        .collect::<BTreeMap<_, _>>();
+
+    let record = crate::value::Map::new(map);
+    visit_record(record, visitor)
 }
 
 fn visit_map<'de, V>(v: Map<Value, Value>, visitor: V) -> Result<V::Value, Error>

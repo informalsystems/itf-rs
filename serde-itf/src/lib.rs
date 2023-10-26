@@ -1,3 +1,206 @@
+//! Library for consuming [Apalache ITF Traces](https://apalache.informal.systems/docs/adr/015adr-trace.html).
+//!
+//! ## Example
+//!
+//! **Trace:** [`MissionariesAndCannibals.itf.json`](../tests/fixtures/MissionariesAndCannibals.itf.json)
+//!
+//! ```rust
+//! use serde::Deserialize;
+//!
+//! #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Deserialize)]
+//! enum Bank {
+//!     #[serde(rename = "N")]
+//!     North,
+//!
+//!     #[serde(rename = "W")]
+//!     West,
+//!
+//!     #[serde(rename = "E")]
+//!     East,
+//!
+//!     #[serde(rename = "S")]
+//!     South,
+//! }
+//!
+//! #[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Deserialize)]
+//! enum Person {
+//!     #[serde(rename = "c1_OF_PERSON")]
+//!     Cannibal1,
+//!
+//!     #[serde(rename = "c2_OF_PERSON")]
+//!     Cannibal2,
+//!
+//!     #[serde(rename = "m1_OF_PERSON")]
+//!     Missionary1,
+//!
+//!     #[serde(rename = "m2_OF_PERSON")]
+//!     Missionary2,
+//! }
+//!
+//! #[derive(Clone, Debug, Deserialize)]
+//! struct State {
+//!     pub bank_of_boat: Bank,
+//!     pub who_is_on_bank: ItfMap<Bank, ItfSet<Person>>,
+//! }
+//!
+//! let data = include_str!("../tests/fixtures/MissionariesAndCannibals.itf.json");
+//! let trace: Trace<State> = itf::trace_from_str(data).unwrap();
+//!
+//! dbg!(trace);
+//! ```
+//!
+//! **Output:**
+//!
+//! ```rust
+//! trace = Trace {
+//!     meta: TraceMeta {
+//!         description: None,
+//!         source: Some(
+//!             "MC_MissionariesAndCannibalsTyped.tla",
+//!         ),
+//!         var_types: {
+//!             "bank_of_boat": "Str",
+//!             "who_is_on_bank": "Str -> Set(PERSON)",
+//!         },
+//!         format: None,
+//!         format_description: None,
+//!         other: {},
+//!     },
+//!     params: [],
+//!     vars: [
+//!         "bank_of_boat",
+//!         "who_is_on_bank",
+//!     ],
+//!     loop_index: None,
+//!     states: [
+//!         State {
+//!             meta: StateMeta {
+//!                 index: Some(
+//!                     0,
+//!                 ),
+//!                 other: {},
+//!             },
+//!             value: State {
+//!                 bank_of_boat: East,
+//!                 who_is_on_bank: {
+//!                     West: {},
+//!                     East: {
+//!                         Missionary2,
+//!                         Cannibal1,
+//!                         Cannibal2,
+//!                         Missionary1,
+//!                     },
+//!                 },
+//!             },
+//!         },
+//!         State {
+//!             meta: StateMeta {
+//!                 index: Some(
+//!                     1,
+//!                 ),
+//!                 other: {},
+//!             },
+//!             value: State {
+//!                 bank_of_boat: West,
+//!                 who_is_on_bank: {
+//!                     West: {
+//!                         Missionary2,
+//!                         Cannibal2,
+//!                     },
+//!                     East: {
+//!                         Missionary1,
+//!                         Cannibal1,
+//!                     },
+//!                 },
+//!             },
+//!         },
+//!         State {
+//!             meta: StateMeta {
+//!                 index: Some(
+//!                     2,
+//!                 ),
+//!                 other: {},
+//!             },
+//!             value: State {
+//!                 bank_of_boat: East,
+//!                 who_is_on_bank: {
+//!                     West: {
+//!                         Cannibal2,
+//!                     },
+//!                     East: {
+//!                         Missionary2,
+//!                         Cannibal1,
+//!                         Missionary1,
+//!                     },
+//!                 },
+//!             },
+//!         },
+//!         State {
+//!             meta: StateMeta {
+//!                 index: Some(
+//!                     3,
+//!                 ),
+//!                 other: {},
+//!             },
+//!             value: State {
+//!                 bank_of_boat: West,
+//!                 who_is_on_bank: {
+//!                     West: {
+//!                         Missionary1,
+//!                         Cannibal2,
+//!                         Missionary2,
+//!                     },
+//!                     East: {
+//!                         Cannibal1,
+//!                     },
+//!                 },
+//!             },
+//!         },
+//!         State {
+//!             meta: StateMeta {
+//!                 index: Some(
+//!                     4,
+//!                 ),
+//!                 other: {},
+//!             },
+//!             value: State {
+//!                 bank_of_boat: East,
+//!                 who_is_on_bank: {
+//!                     East: {
+//!                         Cannibal2,
+//!                         Cannibal1,
+//!                     },
+//!                     West: {
+//!                         Missionary1,
+//!                         Missionary2,
+//!                     },
+//!                 },
+//!             },
+//!         },
+//!         State {
+//!             meta: StateMeta {
+//!                 index: Some(
+//!                     5,
+//!                 ),
+//!                 other: {},
+//!             },
+//!             value: State {
+//!                 bank_of_boat: West,
+//!                 who_is_on_bank: {
+//!                     East: {},
+//!                     West: {
+//!                         Cannibal1,
+//!                         Cannibal2,
+//!                         Missionary1,
+//!                         Missionary2,
+//!                     },
+//!                 },
+//!             },
+//!         },
+//!     ],
+//! }
+//! ```
+
 use serde::de::DeserializeOwned;
 use serde::Deserialize;
 
@@ -44,71 +247,4 @@ where
     let trace_value: Value = serde_json::from_value(value)?;
     let s = S::deserialize(trace_value)?;
     Ok(s)
-}
-
-#[cfg(test)]
-mod tests {
-    use super::*;
-    use crate::value::Value;
-    use serde::Deserialize;
-    use std::collections::{BTreeSet, HashMap};
-
-    #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize)]
-    enum Bank {
-        #[serde(rename = "N")]
-        North,
-        #[serde(rename = "W")]
-        West,
-        #[serde(rename = "E")]
-        East,
-        #[serde(rename = "S")]
-        South,
-    }
-
-    #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize)]
-    enum Person {
-        #[serde(rename = "c1_OF_PERSON")]
-        Cannibal1,
-        #[serde(rename = "c2_OF_PERSON")]
-        Cannibal2,
-        #[serde(rename = "m1_OF_PERSON")]
-        Missionary1,
-        #[serde(rename = "m2_OF_PERSON")]
-        Missionary2,
-    }
-
-    #[derive(Clone, Debug, Deserialize)]
-    #[allow(dead_code)]
-    struct State {
-        pub bank_of_boat: Bank,
-        pub who_is_on_bank: HashMap<Bank, BTreeSet<Person>>,
-    }
-
-    #[test]
-    fn de_cannibals() -> Result<(), Error> {
-        let path = format!(
-            "{}/../itf/tests/fixtures/MissionariesAndCannibals.itf.json",
-            env!("CARGO_MANIFEST_DIR")
-        );
-
-        let fixture = std::fs::read_to_string(path)?;
-        let trace: Trace<State> = crate::trace_from_str(&fixture)?;
-        dbg!(trace);
-
-        Ok(())
-    }
-
-    #[test]
-    fn de_consensus() -> Result<(), Error> {
-        let path = format!(
-            "{}/../itf/tests/fixtures/DecideNonProposerTest0.itf.json",
-            env!("CARGO_MANIFEST_DIR")
-        );
-
-        let fixture = std::fs::read_to_string(path)?;
-        let trace: Trace<Value> = crate::trace_from_str(&fixture)?;
-        dbg!(trace);
-
-        Ok(())
-    }
 }
