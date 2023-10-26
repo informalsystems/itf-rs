@@ -53,13 +53,10 @@ where
 
 #[cfg(test)]
 mod tests {
-    use std::collections::{BTreeMap, BTreeSet};
-
-    use crate::value::Value;
-
     use super::*;
-
+    use crate::value::Value;
     use serde::Deserialize;
+    use std::collections::{BTreeSet, HashMap};
 
     #[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Hash, Deserialize)]
     enum Bank {
@@ -89,7 +86,7 @@ mod tests {
     #[allow(dead_code)]
     struct State {
         pub bank_of_boat: Bank,
-        pub who_is_on_bank: BTreeMap<Bank, BTreeSet<Person>>,
+        pub who_is_on_bank: HashMap<Bank, BTreeSet<Person>>,
     }
 
     #[test]

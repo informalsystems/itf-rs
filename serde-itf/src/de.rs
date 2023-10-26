@@ -88,13 +88,29 @@ impl Value {
 }
 
 macro_rules! deserialize_number {
-    ($ty:ident, $visit:ident, $method:ident) => {
+    ($ty:ty, $to:ident, $visit:ident, $method:ident) => {
         fn $method<V>(self, visitor: V) -> Result<V::Value, Error>
         where
             V: Visitor<'de>,
         {
             match self {
-                Value::Number(n) => visitor.$visit($ty::try_from(n).unwrap()),
+                Value::Number(n) => {
+                    let num = <$ty>::try_from(n).map_err(|_| {
+                        serde::de::Error::invalid_type(Unexpected::Signed(n), &stringify!($ty))
+                    })?;
+
+                    visitor.$visit(num)
+                }
+                Value::BigInt(n) => {
+                    let num = n.$to().ok_or_else(|| {
+                        serde::de::Error::invalid_type(
+                            Unexpected::Other("bigint"),
+                            &stringify!($ty),
+                        )
+                    })?;
+
+                    visitor.$visit(num)
+                }
                 _ => Err(self.invalid_type(&visitor)),
             }
         }
@@ -130,16 +146,16 @@ impl<'de> Deserializer<'de> for Value {
         }
     }
 
-    deserialize_number!(i8, visit_i8, deserialize_i8);
-    deserialize_number!(i16, visit_i16, deserialize_i16);
-    deserialize_number!(i32, visit_i32, deserialize_i32);
-    deserialize_number!(i64, visit_i64, deserialize_i64);
-    deserialize_number!(i128, visit_i128, deserialize_i128);
-    deserialize_number!(u8, visit_u8, deserialize_u8);
-    deserialize_number!(u16, visit_u16, deserialize_u16);
-    deserialize_number!(u32, visit_u32, deserialize_u32);
-    deserialize_number!(u64, visit_u64, deserialize_u64);
-    deserialize_number!(u128, visit_u128, deserialize_u128);
+    deserialize_number!(i8, to_i8, visit_i8, deserialize_i8);
+    deserialize_number!(i16, to_i16, visit_i16, deserialize_i16);
+    deserialize_number!(i32, to_i32, visit_i32, deserialize_i32);
+    deserialize_number!(i64, to_i64, visit_i64, deserialize_i64);
+    deserialize_number!(i128, to_i128, visit_i128, deserialize_i128);
+    deserialize_number!(u8, to_u8, visit_u8, deserialize_u8);
+    deserialize_number!(u16, to_u16, visit_u16, deserialize_u16);
+    deserialize_number!(u32, to_u32, visit_u32, deserialize_u32);
+    deserialize_number!(u64, to_u64, visit_u64, deserialize_u64);
+    deserialize_number!(u128, to_u128, visit_u128, deserialize_u128);
 
     fn deserialize_option<V>(self, visitor: V) -> Result<V::Value, Error>
     where
