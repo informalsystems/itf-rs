@@ -1,4 +1,5 @@
 use serde::de::DeserializeOwned;
+use serde::Deserialize;
 
 pub mod bigint;
 pub mod de;
@@ -16,20 +17,38 @@ use error::Error;
 use trace::Trace;
 use value::Value;
 
-pub fn from_str<S>(s: &str) -> Result<Trace<S>, Error>
+pub fn trace_from_str<S>(str: &str) -> Result<Trace<S>, Error>
 where
-    S: DeserializeOwned,
+    S: for<'de> Deserialize<'de>,
 {
-    let value = serde_json::from_str(s)?;
-    from_value(value)
+    let trace_value: Trace<Value> = serde_json::from_str(str)?;
+    trace_value.decode()
 }
 
-pub fn from_value<S>(value: serde_json::Value) -> Result<Trace<S>, Error>
+pub fn trace_from_value<S>(value: serde_json::Value) -> Result<Trace<S>, Error>
 where
     S: DeserializeOwned,
 {
     let trace_value: Trace<Value> = serde_json::from_value(value)?;
     trace_value.decode()
+}
+
+pub fn from_str<S>(str: &str) -> Result<S, Error>
+where
+    S: for<'de> Deserialize<'de>,
+{
+    let value: Value = serde_json::from_str(str)?;
+    let data = S::deserialize(value)?;
+    Ok(data)
+}
+
+pub fn from_value<S>(value: serde_json::Value) -> Result<S, Error>
+where
+    S: DeserializeOwned,
+{
+    let trace_value: Value = serde_json::from_value(value)?;
+    let s = S::deserialize(trace_value)?;
+    Ok(s)
 }
 
 #[cfg(test)]
@@ -81,7 +100,7 @@ mod tests {
         );
 
         let fixture = std::fs::read_to_string(path)?;
-        let trace: Trace<State> = crate::from_str(&fixture)?;
+        let trace: Trace<State> = crate::trace_from_str(&fixture)?;
         dbg!(trace);
 
         Ok(())
@@ -95,7 +114,7 @@ mod tests {
         );
 
         let fixture = std::fs::read_to_string(path)?;
-        let trace: Trace<Value> = crate::from_str(&fixture)?;
+        let trace: Trace<Value> = crate::trace_from_str(&fixture)?;
         dbg!(trace);
 
         Ok(())

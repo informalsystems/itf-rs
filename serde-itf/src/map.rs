@@ -30,6 +30,10 @@ impl<K, V> Map<K, V> {
     pub fn is_empty(&self) -> bool {
         self.map.is_empty()
     }
+
+    pub fn len(&self) -> usize {
+        self.map.len()
+    }
 }
 
 impl<K, V> IntoIterator for Map<K, V> {
