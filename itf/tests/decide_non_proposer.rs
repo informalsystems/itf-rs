@@ -230,6 +230,6 @@ where
 #[test]
 fn deserialize() {
     let data = include_str!("../tests/fixtures/DecideNonProposerTest0.itf.json");
-    let trace = serde_itf::trace_from_str::<State>(data).unwrap();
+    let trace = itf::trace_from_str::<State>(data).unwrap();
     dbg!(trace);
 }

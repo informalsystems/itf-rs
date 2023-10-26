@@ -2,8 +2,8 @@
 
 use std::collections::HashMap;
 
+use itf::value::BigInt;
 use serde::Deserialize;
-use serde_itf::value::BigInt;
 
 type Balance = HashMap<String, BigInt>;
 type Balances = HashMap<String, Balance>;
@@ -52,7 +52,7 @@ struct State {
 #[ignore]
 fn deserialize() {
     let data = include_str!("../tests/fixtures/TestInsufficientSuccess9.itf.json");
-    let trace = serde_itf::trace_from_str::<State>(data).unwrap();
+    let trace = itf::trace_from_str::<State>(data).unwrap();
 
     dbg!(trace);
 }

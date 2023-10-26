@@ -1,5 +1,5 @@
 [package]
-name    = "serde-itf"
+name    = "itf"
 version = "0.1.0"
 edition = "2021"
 

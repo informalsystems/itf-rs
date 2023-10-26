@@ -37,7 +37,7 @@ struct State {
 #[test]
 fn cannibals() {
     let data = include_str!("../tests/fixtures/MissionariesAndCannibals.itf.json");
-    let trace = serde_itf::trace_from_str::<State>(data).unwrap();
+    let trace = itf::trace_from_str::<State>(data).unwrap();
 
     dbg!(trace);
 }
