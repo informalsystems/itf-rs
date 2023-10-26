@@ -1,17 +1,28 @@
 use core::fmt;
-use std::ops::Deref;
 
 use serde::ser::SerializeStruct;
 use serde::{Deserialize, Serialize};
 
+/// A big integer of the following form: `{ "#bigint": "[-][0-9]+" }`.
+///
+/// We are using this format, as many JSON parsers impose limits
+/// on integer values, see RFC7159.
+///
+/// Big and small integers must be written in this format.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct BigInt(num_bigint::BigInt);
 
-impl Deref for BigInt {
-    type Target = num_bigint::BigInt;
+impl BigInt {
+    pub fn new(value: impl Into<num_bigint::BigInt>) -> Self {
+        Self(value.into())
+    }
 
-    fn deref(&self) -> &Self::Target {
+    pub fn get(&self) -> &num_bigint::BigInt {
         &self.0
+    }
+
+    pub fn into_inner(self) -> num_bigint::BigInt {
+        self.0
     }
 }
 

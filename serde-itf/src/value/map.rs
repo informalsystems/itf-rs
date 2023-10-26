@@ -5,11 +5,12 @@ use std::collections::BTreeMap;
 ///
 /// That is, a map holds a JSON array of two-element arrays.
 /// Each two-element array p is interpreted as follows:
-/// - p[0] is the map key
-/// - p[1] is the map value
+/// - `p[0]` is the map key
+/// - `p[1]` is the map value
 ///
 /// Importantly, a key may be an arbitrary expression.
 /// It does not have to be a string or an integer.
+///
 /// TLA+ functions are written as maps in this format.
 #[derive(Default, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Map<K, V> {

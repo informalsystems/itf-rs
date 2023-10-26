@@ -12,24 +12,27 @@ pub use set::Set;
 pub use tuple::Tuple;
 pub use unserializable::Unserializable;
 
+// TODO: Display
+
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 #[serde(untagged)]
 pub enum Value {
     /// A JSON Boolean: either `false` or `true`.
     Bool(bool),
 
+    /// A JSON number literal, e.g., `42`.
+    Number(i64),
+
     /// A JSON string literal, e.g., `"hello"`.
     ///
     /// TLA+ strings are written as strings in this format.
     String(String),
 
-    /// A JSON number literal, e.g., `42`.
-    Number(i64),
-
-    /// A big integer of the following form: { "#bigint": "[-][0-9]+" }.
+    /// A big integer of the following form: `{ "#bigint": "[-][0-9]+" }`.
     ///
     /// We are using this format, as many JSON parsers impose limits
     /// on integer values, see RFC7159.
+    ///
     /// Big and small integers must be written in this format.
     BigInt(BigInt),
 
@@ -57,7 +60,7 @@ pub enum Value {
     ///
     /// That is, a map holds a JSON array of two-element arrays.
     /// Each two-element array p is interpreted as follows:
-    ///   p[0] is the map key and p[1] is the map value.
+    ///   `p[0]` is the map key and `p[1]` is the map value.
     ///
     /// Importantly, a key may be an arbitrary expression.
     /// It does not have to be a string or an integer.
@@ -77,40 +80,4 @@ pub enum Value {
     /// This should be a very rare expression, which should not occur in normal traces.
     /// Usually, it indicates some form of an error.
     Unserializable(Unserializable),
-}
-
-#[derive(Copy, Clone, Debug, PartialEq, Eq)]
-pub enum Type {
-    Bool,
-    Number,
-    String,
-    BigInt,
-    List,
-    Record,
-    Tuple,
-    Set,
-    Map,
-    Unserializable,
-    Float,
-    Char,
-    Enum,
-}
-
-// TODO: Display
-
-impl Value {
-    pub fn value_type(&self) -> Type {
-        match self {
-            Value::Bool(_) => Type::Bool,
-            Value::Number(_) => Type::Number,
-            Value::String(_) => Type::String,
-            Value::BigInt(_) => Type::BigInt,
-            Value::List(_) => Type::List,
-            Value::Record(_) => Type::Record,
-            Value::Tuple(_) => Type::Tuple,
-            Value::Set(_) => Type::Set,
-            Value::Map(_) => Type::Map,
-            Value::Unserializable(_) => Type::Unserializable,
-        }
-    }
 }

@@ -3,14 +3,14 @@ use serde::Deserialize;
 
 pub mod de;
 pub mod error;
-pub mod meta;
 pub mod state;
 pub mod trace;
 pub mod value;
 
-use error::Error;
-use trace::Trace;
-use value::Value;
+pub use error::Error;
+pub use state::State;
+pub use trace::Trace;
+pub use value::Value;
 
 pub fn trace_from_str<S>(str: &str) -> Result<Trace<S>, Error>
 where

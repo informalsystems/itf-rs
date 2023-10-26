@@ -8,7 +8,7 @@ use serde::de::{
 };
 use serde::Deserialize;
 
-use crate::value::{BigInt, Map, Set, Tuple, Type, Value};
+use crate::value::{Map, Set, Tuple, Value};
 
 pub fn decode_value<T>(value: Value) -> Result<T, Error>
 where
@@ -20,10 +20,7 @@ where
 #[derive(Debug)]
 pub enum Error {
     Custom(String),
-    TypeMismatch(Type, Type),
-    BigInt(BigInt, &'static str),
     UnsupportedType(&'static str),
-    Number(i64, &'static str),
 }
 
 impl std::error::Error for Error {}
@@ -32,19 +29,6 @@ impl fmt::Display for Error {
     fn fmt(&self, f: &mut fmt::Formatter<'_>) -> fmt::Result {
         match self {
             Error::Custom(msg) => msg.fmt(f),
-
-            Error::TypeMismatch(expected, actual) => {
-                write!(f, "type mismatch: expected {expected:?}, found {actual:?}")
-            }
-
-            Error::BigInt(value, expected) => {
-                write!(f, "cannot convert {value} to {expected}")
-            }
-
-            Error::Number(value, expected) => {
-                write!(f, "cannot convert {value} to {expected}")
-            }
-
             Error::UnsupportedType(ty) => write!(f, "unsupported type: {ty}"),
         }
     }
@@ -97,8 +81,8 @@ macro_rules! deserialize_number {
 
                     visitor.$visit(num)
                 }
-                Value::BigInt(n) => {
-                    let num = n.$to().ok_or_else(|| {
+                Value::BigInt(b) => {
+                    let num = b.get().$to().ok_or_else(|| {
                         serde::de::Error::invalid_type(
                             Unexpected::Other("bigint"),
                             &stringify!($ty),
@@ -132,7 +116,7 @@ impl<'de> Deserializer<'de> for Value {
             Value::Bool(v) => visitor.visit_bool(v),
             Value::Number(v) => visitor.visit_i64(v),
             Value::String(v) => visitor.visit_string(v),
-            Value::BigInt(v) => visitor.visit_i64(v.to_i64().unwrap()),
+            Value::BigInt(v) => visitor.visit_i64(v.get().to_i64().unwrap()),
             Value::List(v) => visit_list(v, visitor),
             Value::Tuple(v) => visit_tuple(v, visitor),
             Value::Set(v) => visit_set(v, visitor),
