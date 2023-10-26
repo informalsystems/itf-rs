@@ -1,10 +1,16 @@
 use serde::{Deserialize, Serialize};
 
-use crate::bigint::BigInt;
-use crate::map::Map;
-use crate::set::Set;
-use crate::tuple::Tuple;
-use crate::unserializable::Unserializable;
+mod bigint;
+mod map;
+mod set;
+mod tuple;
+mod unserializable;
+
+pub use bigint::BigInt;
+pub use map::Map;
+pub use set::Set;
+pub use tuple::Tuple;
+pub use unserializable::Unserializable;
 
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 #[serde(untagged)]

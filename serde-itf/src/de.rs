@@ -8,11 +8,7 @@ use serde::de::{
 };
 use serde::Deserialize;
 
-use crate::bigint::BigInt;
-use crate::map::Map;
-use crate::set::Set;
-use crate::tuple::Tuple;
-use crate::value::{Type, Value};
+use crate::value::{BigInt, Map, Set, Tuple, Type, Value};
 
 pub fn decode_value<T>(value: Value) -> Result<T, Error>
 where
