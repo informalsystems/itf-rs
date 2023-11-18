@@ -76,7 +76,7 @@ where
     {
         #[derive(Deserialize)]
         struct InnerTuple<V> {
-            #[serde(rename = "#set")]
+            #[serde(rename = "#tup")]
             elements: Vec<V>,
         }
 
