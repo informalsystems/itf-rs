@@ -2,7 +2,7 @@
 
 use std::collections::HashMap;
 
-use itf::value::BigInt;
+use num_bigint::BigInt;
 use serde::Deserialize;
 
 type Balance = HashMap<String, BigInt>;
