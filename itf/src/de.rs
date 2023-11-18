@@ -246,6 +246,7 @@ impl<'de> Deserializer<'de> for Value {
         match self {
             Value::List(v) => visit_list(v, visitor),
             Value::Tuple(v) => visit_tuple(v, visitor),
+            Value::Set(v) => visit_set(v, visitor),
             _ => Err(self.invalid_type(&visitor)),
         }
     }
