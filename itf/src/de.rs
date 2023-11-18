@@ -255,7 +255,10 @@ impl<'de> Deserializer<'de> for Value {
     where
         V: Visitor<'de>,
     {
-        self.deserialize_seq(visitor)
+        match self {
+            Value::BigInt(v) => visit_bigint(v, visitor),
+            _ => self.deserialize_seq(visitor),
+        }
     }
 
     fn deserialize_tuple_struct<V>(
