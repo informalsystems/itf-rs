@@ -356,12 +356,24 @@ fn visit_bigint<'de, V>(v: BigInt, visitor: V) -> Result<V::Value, Error>
 where
     V: Visitor<'de>,
 {
-    let map = vec![("#bigint".to_string(), Value::String(v.to_string()))]
-        .into_iter()
-        .collect::<BTreeMap<_, _>>();
+    let (sign, digits) = v.into_inner().to_u32_digits();
 
-    let record = crate::value::Map::new(map);
-    visit_record(record, visitor)
+    let sign_value = match sign {
+        num_bigint::Sign::Minus => -1,
+        num_bigint::Sign::NoSign => 0,
+        num_bigint::Sign::Plus => 1,
+    };
+
+    let digit_value = digits
+        .into_iter()
+        .map(i64::from)
+        .map(Value::Number)
+        .collect();
+
+    let serialized = [Value::Number(sign_value), Value::List(digit_value)];
+
+    let deserializer = SeqDeserializer::new(serialized.into_iter());
+    visitor.visit_seq(deserializer)
 }
 
 fn visit_map<'de, V>(v: Map<Value, Value>, visitor: V) -> Result<V::Value, Error>
