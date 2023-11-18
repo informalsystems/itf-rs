@@ -49,7 +49,6 @@ struct State {
 }
 
 #[test]
-#[ignore]
 fn deserialize() {
     let data = include_str!("../tests/fixtures/TestInsufficientSuccess9.itf.json");
     let trace = itf::trace_from_str::<State>(data).unwrap();
