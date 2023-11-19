@@ -88,3 +88,44 @@ fn test_biguint_deser() {
 
     assert!(itf::from_value::<num_bigint::BigUint>(itf.clone()).is_err());
 }
+
+#[test]
+fn test_itf_value_equivalent() {
+    let itf = serde_json::json!({
+        "bool": true,
+        "number": -99,
+        "str": "hello",
+        "bigint": {"#bigint": "-999"},
+        "list": [1, 2, 3],
+        "record": {"a": 1, "b": 2, "c": 3},
+    });
+
+    let value = serde_json::from_value::<itf::Value>(itf.clone()).unwrap();
+    assert_eq!(value.clone(), itf::Value::deserialize(value).unwrap());
+}
+
+#[test]
+#[should_panic]
+fn test_itf_value_noneq() {
+    // Deserialized Value loses the type information
+    let itf = serde_json::json!({
+        "tuple": {"#tup": [1, 2, 3]},
+        "set": {"#set": [1, 2, 3]},
+        "map": {"#map": [["1", 3], ["2", 4]]},
+    });
+
+    let value = serde_json::from_value::<itf::Value>(itf.clone()).unwrap();
+    assert_eq!(value.clone(), itf::Value::deserialize(value).unwrap());
+}
+
+#[test]
+#[should_panic]
+fn test_map_with_non_str_key() {
+    // MapSerializer accepts only string keys
+    let itf = serde_json::json!({
+        "map": {"#map": [[1, 3], [2, 4]]},
+    });
+
+    let value = serde_json::from_value::<itf::Value>(itf.clone()).unwrap();
+    assert_eq!(value.clone(), itf::Value::deserialize(value).unwrap());
+}
