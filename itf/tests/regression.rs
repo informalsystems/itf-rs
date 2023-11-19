@@ -22,7 +22,7 @@ fn test_set() {
     let _: Vec<u8> = itf::from_str(itf).unwrap();
     let _: std::collections::HashSet<u8> = itf::from_str(itf).unwrap();
     let _: std::collections::BTreeSet<u8> = itf::from_str(itf).unwrap();
-    let _: serde_json::Value = dbg!(itf::from_str(itf).unwrap());
+    let _: serde_json::Value = itf::from_str(itf).unwrap();
 }
 
 #[test]
@@ -72,5 +72,5 @@ fn test_biguint_deser() {
     assert_eq!(99, itf::from_str::<u64>(itf).unwrap());
     assert_eq!(num_bigint::BigInt::from(99), itf::from_str(itf).unwrap());
 
-    assert!(dbg!(itf::from_str::<num_bigint::BigUint>(itf)).is_err());
+    assert!(itf::from_str::<num_bigint::BigUint>(itf).is_err());
 }
