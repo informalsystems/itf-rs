@@ -124,3 +124,42 @@ fn test_map_with_non_str_key() {
     let value = serde_json::from_value::<itf::Value>(itf).unwrap();
     itf::Value::deserialize(value).unwrap();
 }
+
+#[test]
+fn test_complete() {
+    use std::collections::{BTreeSet, HashMap, HashSet};
+
+    #[derive(Deserialize, Debug)]
+    #[serde(untagged)]
+    enum RecordEnum {
+        One(i64, String),
+        Two { _foo: String, _bar: i64 },
+    }
+
+    #[derive(Deserialize, Debug)]
+    struct Complete {
+        _bool: bool,
+        _number: i64,
+        _str: String,
+        _bigint: num_bigint::BigInt,
+        _list: Vec<num_bigint::BigInt>,
+        _tuple: (String, num_bigint::BigInt),
+        _set: HashSet<num_bigint::BigInt>,
+        _map: HashMap<BTreeSet<num_bigint::BigInt>, num_bigint::BigInt>,
+        _enum: Vec<RecordEnum>,
+    }
+
+    let itf = serde_json::json!({
+        "_bool": true,
+        "_number": -99,
+        "_str": "hello",
+        "_bigint": {"#bigint": "-999"},
+        "_list": [{"#bigint": "1"}, {"#bigint": "2"}, {"#bigint": "3"}],
+        "_tuple": {"#tup": ["hello", {"#bigint": "999"}]},
+        "_set": {"#set": [{"#bigint": "1"}, {"#bigint": "2"}, {"#bigint": "3"}]},
+        "_map": {"#map": [[{"#set": [{"#bigint": "1"}, {"#bigint": "2"}]}, {"#bigint": "3"}], [{"#set": [{"#bigint": "2"}, {"#bigint": "3"}]}, {"#bigint": "4"}]]},
+        "_enum": [{"#tup": [1, "hello"]}, {"_foo": "hello", "_bar": 1}],
+    });
+
+    let _: Complete = itf::from_value(itf).unwrap();
+}
