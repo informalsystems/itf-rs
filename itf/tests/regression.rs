@@ -126,6 +126,17 @@ fn test_map_with_non_str_key() {
 }
 
 #[test]
+#[should_panic]
+fn test_bigint_to_int() {
+    let itf = serde_json::json!({
+        // i64::MIN - 1
+        "#bigint": "-9223372036854775809",
+    });
+
+    itf::from_value::<i64>(itf).unwrap();
+}
+
+#[test]
 fn test_complete() {
     use std::collections::{BTreeSet, HashMap, HashSet};
 
