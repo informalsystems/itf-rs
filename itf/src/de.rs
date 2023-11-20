@@ -5,6 +5,9 @@ use crate::Value;
 mod error;
 pub use error::Error;
 
+mod helpers;
+pub use helpers::from_bigint;
+
 mod deserializer;
 
 #[doc(hidden)]

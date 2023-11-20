@@ -155,6 +155,22 @@ fn test_enum_deserialization_failure() {
 
     #[derive(Deserialize, Debug)]
     #[serde(tag = "typ")]
+    enum FooBarWithInt {
+        // try to deserialize _foo as i64, via a conversion from BigInt
+        Foo {
+            #[serde(deserialize_with = "itf::de::from_bigint")]
+            _foo: i64,
+        },
+        Bar {
+            _bar: String,
+        },
+    }
+    itf::from_value::<FooBarWithInt>(itf.clone()).unwrap();
+
+    assert!(itf::from_value::<FooBarWithInt>(itf.clone()).is_ok());
+
+    #[derive(Deserialize, Debug)]
+    #[serde(tag = "typ")]
     enum FooBarBigInt {
         // can deserialize _foo to BigInt
         Foo { _foo: num_bigint::BigInt },
