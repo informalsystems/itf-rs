@@ -93,7 +93,6 @@ fn test_itf_value_equivalent() {
         "bool": true,
         "number": -99,
         "str": "hello",
-        "bigint": {"#bigint": "-999"},
         "list": [1, 2, 3],
         "record": {"a": 1, "b": 2, "c": 3},
     });
@@ -107,6 +106,7 @@ fn test_itf_value_equivalent() {
 fn test_itf_value_noneq() {
     // Deserialized Value loses the type information
     let itf = serde_json::json!({
+        "bigint": {"#bigint": "-999"},
         "tuple": {"#tup": [1, 2, 3]},
         "set": {"#set": [1, 2, 3]},
         "map": {"#map": [["1", 3], ["2", 4]]},
@@ -124,6 +124,5 @@ fn test_map_with_non_str_key() {
         "map": {"#map": [[1, 3], [2, 4]]},
     });
 
-    let value = serde_json::from_value::<itf::Value>(itf.clone()).unwrap();
-    assert_eq!(value.clone(), itf::Value::deserialize(value).unwrap());
+    assert!(serde_json::from_value::<itf::Value>(itf.clone()).is_err());
 }
