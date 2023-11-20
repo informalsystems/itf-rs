@@ -10,6 +10,7 @@ use serde::Deserialize;
 
 use crate::value::{BigInt, Map, Set, Tuple, Value};
 
+#[doc(hidden)]
 pub fn decode_value<T>(value: Value) -> Result<T, Error>
 where
     T: DeserializeOwned,

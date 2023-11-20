@@ -12,10 +12,16 @@ pub use set::Set;
 pub use tuple::Tuple;
 pub use unserializable::Unserializable;
 
-// TODO: Display
-
+/// An ITF value, as per the [Apalache ITF format][itf-spec] specification.
+///
+/// This enum is hidden from the documentation, as it is not meant to be used directly
+/// because of pitfalls documented in [this PR][pitfalls].
+///
+/// [itf-spec]: https://apalache.informal.systems/docs/adr/015adr-trace.html
+/// [pitfalls]: https://github.com/informalsystems/itf-rs/pull/6#issuecomment-1817860601
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 #[serde(untagged)]
+#[doc(hidden)]
 pub enum Value {
     /// A JSON Boolean: either `false` or `true`.
     Bool(bool),

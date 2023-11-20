@@ -208,11 +208,15 @@ pub mod de;
 pub mod error;
 pub mod state;
 pub mod trace;
-pub mod value;
 
 pub use error::Error;
 pub use state::State;
 pub use trace::Trace;
+
+#[doc(hidden)]
+pub mod value;
+
+#[doc(hidden)]
 pub use value::Value;
 
 pub fn trace_from_str<S>(str: &str) -> Result<Trace<S>, Error>
