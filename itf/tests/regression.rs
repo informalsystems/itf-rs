@@ -126,14 +126,14 @@ fn test_map_with_non_str_key() {
 }
 
 #[test]
-#[should_panic]
 fn test_bigint_to_int() {
     let itf = serde_json::json!({
         // i64::MIN - 1
         "#bigint": "-9223372036854775809",
     });
 
-    itf::from_value::<i64>(itf).unwrap();
+    assert!(itf::from_value::<i64>(itf.clone()).is_err());
+    assert!(itf::from_value::<num_bigint::BigInt>(itf).is_ok());
 }
 
 #[test]
