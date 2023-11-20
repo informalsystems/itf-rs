@@ -38,8 +38,8 @@ fn test_num_bigint() {
     assert!(itf::from_value::<u64>(itf.clone()).is_err());
     assert!(itf::from_value::<itf::value::BigInt>(itf.clone()).is_err());
     assert!(!matches!(
-        itf::from_value::<itf::value::Value>(itf.clone()).unwrap(),
-        itf::value::Value::BigInt(_),
+        itf::from_value::<itf::Value>(itf.clone()).unwrap(),
+        itf::Value::BigInt(_),
     ));
 }
 
@@ -58,8 +58,8 @@ fn test_bigint_deser() {
     assert!(itf::from_value::<u64>(itf.clone()).is_err());
     assert!(itf::from_value::<itf::value::BigInt>(itf.clone()).is_err());
     assert!(!matches!(
-        itf::from_value::<itf::value::Value>(itf.clone()).unwrap(),
-        itf::value::Value::BigInt(_),
+        itf::from_value::<itf::Value>(itf.clone()).unwrap(),
+        itf::Value::BigInt(_),
     ));
 }
 
@@ -79,8 +79,8 @@ fn test_biguint_deser() {
     assert!(itf::from_value::<num_bigint::BigUint>(itf.clone()).is_err());
     assert!(itf::from_value::<itf::value::BigInt>(itf.clone()).is_err());
     assert!(!matches!(
-        itf::from_value::<itf::value::Value>(itf.clone()).unwrap(),
-        itf::value::Value::BigInt(_),
+        itf::from_value::<itf::Value>(itf.clone()).unwrap(),
+        itf::Value::BigInt(_),
     ));
 }
 
