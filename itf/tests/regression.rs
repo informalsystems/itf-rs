@@ -121,5 +121,6 @@ fn test_map_with_non_str_key() {
         "map": {"#map": [[1, 3], [2, 4]]},
     });
 
-    assert!(serde_json::from_value::<itf::Value>(itf.clone()).is_err());
+    let value = serde_json::from_value::<itf::Value>(itf).unwrap();
+    itf::Value::deserialize(value).unwrap();
 }
