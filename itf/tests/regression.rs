@@ -27,56 +27,47 @@ fn test_set() {
 fn test_num_bigint() {
     let itf = serde_json::json!([-1, [99]]);
 
-    assert_eq!(
-        itf::value::BigInt::new(-99),
-        itf::from_value(itf.clone()).unwrap()
-    );
-    assert_eq!(
-        itf::value::Value::BigInt(itf::value::BigInt::new(-99)),
-        itf::from_value(itf.clone()).unwrap()
-    );
-    assert_eq!(-99, itf::from_value::<i64>(itf.clone()).unwrap());
+    // successful cases
     assert_eq!(
         num_bigint::BigInt::from(-99),
-        itf::from_value(itf.clone()).unwrap()
+        itf::from_value::<num_bigint::BigInt>(itf.clone()).unwrap()
     );
 
+    // unsuccessful cases
+    assert!(itf::from_value::<i64>(itf.clone()).is_err());
     assert!(itf::from_value::<u64>(itf.clone()).is_err());
+    assert!(itf::from_value::<itf::value::BigInt>(itf.clone()).is_err());
+    assert!(!matches!(
+        itf::from_value::<itf::value::Value>(itf.clone()).unwrap(),
+        itf::value::Value::BigInt(_),
+    ));
 }
 
 #[test]
 fn test_bigint_deser() {
     let itf = serde_json::json!({"#bigint": "-99"});
 
-    assert_eq!(
-        itf::value::BigInt::new(-99),
-        itf::from_value(itf.clone()).unwrap()
-    );
-    assert_eq!(
-        itf::value::Value::BigInt(itf::value::BigInt::new(-99)),
-        itf::from_value(itf.clone()).unwrap()
-    );
+    // successful cases
     assert_eq!(-99, itf::from_value::<i64>(itf.clone()).unwrap());
     assert_eq!(
         num_bigint::BigInt::from(-99),
         itf::from_value(itf.clone()).unwrap()
     );
 
+    // unsuccessful cases
     assert!(itf::from_value::<u64>(itf.clone()).is_err());
+    assert!(itf::from_value::<itf::value::BigInt>(itf.clone()).is_err());
+    assert!(!matches!(
+        itf::from_value::<itf::value::Value>(itf.clone()).unwrap(),
+        itf::value::Value::BigInt(_),
+    ));
 }
 
 #[test]
 fn test_biguint_deser() {
     let itf = serde_json::json!({"#bigint": "99"});
 
-    assert_eq!(
-        itf::value::BigInt::new(99),
-        itf::from_value(itf.clone()).unwrap()
-    );
-    assert_eq!(
-        itf::value::Value::BigInt(itf::value::BigInt::new(99)),
-        itf::from_value(itf.clone()).unwrap()
-    );
+    // successful cases
     assert_eq!(99, itf::from_value::<i64>(itf.clone()).unwrap());
     assert_eq!(99, itf::from_value::<u64>(itf.clone()).unwrap());
     assert_eq!(
@@ -84,7 +75,13 @@ fn test_biguint_deser() {
         itf::from_value(itf.clone()).unwrap()
     );
 
+    // unsuccessful cases
     assert!(itf::from_value::<num_bigint::BigUint>(itf.clone()).is_err());
+    assert!(itf::from_value::<itf::value::BigInt>(itf.clone()).is_err());
+    assert!(!matches!(
+        itf::from_value::<itf::value::Value>(itf.clone()).unwrap(),
+        itf::value::Value::BigInt(_),
+    ));
 }
 
 #[test]
