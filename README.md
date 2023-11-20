@@ -14,11 +14,11 @@ Rust library for consuming [Apalache ITF Traces][itf-adr].
 **Trace:** [`MissionariesAndCannibals.itf.json`](./apalache-itf/tests/fixtures/MissionariesAndCannibals.itf.json)
 
 ```rust
+use std::collections::{BTreeSet, BTreeMap};
+
 use serde::Deserialize;
 
-use itf::{trace_from_str, ItfMap, ItfSet};
-
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Deserialize)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Deserialize)]
 enum Bank {
     #[serde(rename = "N")]
     North,
@@ -33,7 +33,7 @@ enum Bank {
     South,
 }
 
-#[derive(Copy, Clone, Debug, PartialEq, Eq, Hash, Deserialize)]
+#[derive(Copy, Clone, Debug, PartialEq, Eq, PartialOrd, Ord, Deserialize)]
 enum Person {
     #[serde(rename = "c1_OF_PERSON")]
     Cannibal1,
@@ -51,11 +51,11 @@ enum Person {
 #[derive(Clone, Debug, Deserialize)]
 struct State {
     pub bank_of_boat: Bank,
-    pub who_is_on_bank: ItfMap<Bank, ItfSet<Person>>,
+    pub who_is_on_bank: BTreeMap<Bank, BTreeSet<Person>>,
 }
 
 let data = include_str!("../tests/fixtures/MissionariesAndCannibals.itf.json");
-let trace: Trace<State> = trace_from_str(data).unwrap();
+let trace: Trace<State> = itf::trace_from_str(data).unwrap();
 
 dbg!(trace);
 ```
@@ -63,18 +63,19 @@ dbg!(trace);
 **Output:**
 
 ```rust
-trace = Trace {
-    meta: TraceMeta {
-        description: None,
+[itf/examples/cannibals.rs:45] trace = Trace {
+    meta: Meta {
+        format: None,
+        format_description: None,
         source: Some(
             "MC_MissionariesAndCannibalsTyped.tla",
         ),
+        description: None,
         var_types: {
             "bank_of_boat": "Str",
             "who_is_on_bank": "Str -> Set(PERSON)",
         },
-        format: None,
-        format_description: None,
+        timestamp: None,
         other: {},
     },
     params: [],
@@ -85,7 +86,7 @@ trace = Trace {
     loop_index: None,
     states: [
         State {
-            meta: StateMeta {
+            meta: Meta {
                 index: Some(
                     0,
                 ),
@@ -96,16 +97,16 @@ trace = Trace {
                 who_is_on_bank: {
                     West: {},
                     East: {
-                        Missionary2,
                         Cannibal1,
                         Cannibal2,
                         Missionary1,
+                        Missionary2,
                     },
                 },
             },
         },
         State {
-            meta: StateMeta {
+            meta: Meta {
                 index: Some(
                     1,
                 ),
@@ -115,18 +116,18 @@ trace = Trace {
                 bank_of_boat: West,
                 who_is_on_bank: {
                     West: {
-                        Missionary2,
                         Cannibal2,
+                        Missionary2,
                     },
                     East: {
-                        Missionary1,
                         Cannibal1,
+                        Missionary1,
                     },
                 },
             },
         },
         State {
-            meta: StateMeta {
+            meta: Meta {
                 index: Some(
                     2,
                 ),
@@ -139,15 +140,15 @@ trace = Trace {
                         Cannibal2,
                     },
                     East: {
-                        Missionary2,
                         Cannibal1,
                         Missionary1,
+                        Missionary2,
                     },
                 },
             },
         },
         State {
-            meta: StateMeta {
+            meta: Meta {
                 index: Some(
                     3,
                 ),
@@ -157,8 +158,8 @@ trace = Trace {
                 bank_of_boat: West,
                 who_is_on_bank: {
                     West: {
-                        Missionary1,
                         Cannibal2,
+                        Missionary1,
                         Missionary2,
                     },
                     East: {
@@ -168,7 +169,7 @@ trace = Trace {
             },
         },
         State {
-            meta: StateMeta {
+            meta: Meta {
                 index: Some(
                     4,
                 ),
@@ -177,19 +178,19 @@ trace = Trace {
             value: State {
                 bank_of_boat: East,
                 who_is_on_bank: {
-                    East: {
-                        Cannibal2,
-                        Cannibal1,
-                    },
                     West: {
                         Missionary1,
                         Missionary2,
+                    },
+                    East: {
+                        Cannibal1,
+                        Cannibal2,
                     },
                 },
             },
         },
         State {
-            meta: StateMeta {
+            meta: Meta {
                 index: Some(
                     5,
                 ),
@@ -198,13 +199,13 @@ trace = Trace {
             value: State {
                 bank_of_boat: West,
                 who_is_on_bank: {
-                    East: {},
                     West: {
                         Cannibal1,
                         Cannibal2,
                         Missionary1,
                         Missionary2,
                     },
+                    East: {},
                 },
             },
         },
