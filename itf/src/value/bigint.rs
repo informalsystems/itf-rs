@@ -55,31 +55,13 @@ impl<'de> Deserialize<'de> for BigInt {
         D: serde::Deserializer<'de>,
     {
         #[derive(Deserialize)]
-        #[serde(untagged)]
-        enum BigInt {
-            // deserialized serde_json::Value
-            Itf {
-                #[serde(rename = "#bigint")]
-                bigint: String,
-            },
-            // deserialized itf::Value
-            BigInt(i64, Vec<u32>),
+        struct BigInt {
+            #[serde(rename = "#bigint")]
+            bigint: String,
         }
 
-        match BigInt::deserialize(deserializer)? {
-            BigInt::Itf { bigint } => {
-                let bigint: num_bigint::BigInt =
-                    bigint.parse().map_err(serde::de::Error::custom)?;
-                Ok(Self::new(bigint))
-            }
-            BigInt::BigInt(sign, digits) => {
-                let sign = match sign.cmp(&0) {
-                    std::cmp::Ordering::Less => num_bigint::Sign::Minus,
-                    std::cmp::Ordering::Equal => num_bigint::Sign::NoSign,
-                    std::cmp::Ordering::Greater => num_bigint::Sign::Plus,
-                };
-                Ok(Self::new(num_bigint::BigInt::new(sign, digits)))
-            }
-        }
+        let inner = BigInt::deserialize(deserializer)?;
+        let bigint = inner.bigint.parse().map_err(serde::de::Error::custom)?;
+        Ok(Self(bigint))
     }
 }
