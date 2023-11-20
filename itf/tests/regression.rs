@@ -137,6 +137,34 @@ fn test_bigint_to_int() {
 }
 
 #[test]
+fn test_enum_deserialization_failure() {
+    let itf = serde_json::json!({
+        "_foo": {"#bigint": "1"},
+        "typ": "Foo",
+    });
+
+    #[derive(Deserialize, Debug)]
+    #[serde(tag = "typ")]
+    enum FooBarInt {
+        // try to deserialize _foo as i64, instead of BigInt
+        Foo { _foo: i64 },
+        Bar { _bar: String },
+    }
+
+    assert!(itf::from_value::<FooBarInt>(itf.clone()).is_err());
+
+    #[derive(Deserialize, Debug)]
+    #[serde(tag = "typ")]
+    enum FooBarBigInt {
+        // can deserialize _foo to BigInt
+        Foo { _foo: num_bigint::BigInt },
+        Bar { _bar: String },
+    }
+
+    assert!(itf::from_value::<FooBarBigInt>(itf).is_ok());
+}
+
+#[test]
 fn test_complete() {
     use std::collections::{BTreeSet, HashMap, HashSet};
 
