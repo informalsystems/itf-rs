@@ -18,6 +18,7 @@ pub mod value;
 #[doc(hidden)]
 pub use value::Value;
 
+/// Deserialize a [`Trace`] over states `S` from an ITF JSON string.
 pub fn trace_from_str<S>(str: &str) -> Result<Trace<S>, Error>
 where
     S: for<'de> Deserialize<'de>,
@@ -26,6 +27,7 @@ where
     trace_value.decode()
 }
 
+/// Deserialize a [`Trace`] over states `S` from an ITF JSON [`serde_json::Value`].
 pub fn trace_from_value<S>(value: serde_json::Value) -> Result<Trace<S>, Error>
 where
     S: DeserializeOwned,
@@ -34,6 +36,7 @@ where
     trace_value.decode()
 }
 
+/// Deserialize an ITF-encoded expression `S` from an ITF JSON string.
 pub fn from_str<S>(str: &str) -> Result<S, Error>
 where
     S: for<'de> Deserialize<'de>,
@@ -43,6 +46,7 @@ where
     Ok(data)
 }
 
+/// Deserialize an ITF-encoded expression `S` from an ITF JSON [`serde_json::Value`].
 pub fn from_value<S>(value: serde_json::Value) -> Result<S, Error>
 where
     S: DeserializeOwned,

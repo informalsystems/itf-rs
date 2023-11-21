@@ -6,6 +6,7 @@ use serde::{Deserialize, Serialize};
 use crate::error::Error;
 use crate::value::Value;
 
+/// Metada for an ITF [`State`].
 #[derive(Default, Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Meta {
     #[serde(default)]
@@ -15,6 +16,7 @@ pub struct Meta {
     pub other: BTreeMap<String, String>,
 }
 
+/// An ITF state of type `S`.
 #[derive(Default, Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct State<S> {
     #[serde(rename = "#meta")]

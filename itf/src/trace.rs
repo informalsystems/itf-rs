@@ -7,6 +7,7 @@ use crate::error::Error;
 use crate::state::State;
 use crate::value::Value;
 
+/// Metadata for an ITF [`Trace`].
 #[derive(Default, Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Meta {
     #[serde(default)]
@@ -31,6 +32,7 @@ pub struct Meta {
     pub other: BTreeMap<String, String>,
 }
 
+/// An ITF trace over states of type `S`.
 #[derive(Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Trace<S> {
     #[serde(rename = "#meta")]
