@@ -6,7 +6,7 @@ mod error;
 pub use error::Error;
 
 mod helpers;
-pub use helpers::from_bigint;
+pub use helpers::Integer;
 
 mod deserializer;
 
