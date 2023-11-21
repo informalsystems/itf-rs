@@ -27,7 +27,7 @@ fn test_set() {
 fn test_num_bigint() {
     let itf = serde_json::json!([-1, [99]]);
 
-    // successful cases
+    // successful case; only BigInt
     assert_eq!(
         num_bigint::BigInt::from(-99),
         itf::from_value::<num_bigint::BigInt>(itf.clone()).unwrap()
@@ -47,14 +47,14 @@ fn test_num_bigint() {
 fn test_bigint_deser() {
     let itf = serde_json::json!({"#bigint": "-99"});
 
-    // successful cases
-    assert_eq!(-99, itf::from_value::<i64>(itf.clone()).unwrap());
+    // successful case; only BigInt
     assert_eq!(
         num_bigint::BigInt::from(-99),
         itf::from_value(itf.clone()).unwrap()
     );
 
     // unsuccessful cases
+    assert!(itf::from_value::<i64>(itf.clone()).is_err());
     assert!(itf::from_value::<u64>(itf.clone()).is_err());
     assert!(itf::from_value::<itf::value::BigInt>(itf.clone()).is_err());
     assert!(!matches!(
@@ -67,15 +67,15 @@ fn test_bigint_deser() {
 fn test_biguint_deser() {
     let itf = serde_json::json!({"#bigint": "99"});
 
-    // successful cases
-    assert_eq!(99, itf::from_value::<i64>(itf.clone()).unwrap());
-    assert_eq!(99, itf::from_value::<u64>(itf.clone()).unwrap());
+    // successful case; only BigInt
     assert_eq!(
         num_bigint::BigInt::from(99),
         itf::from_value(itf.clone()).unwrap()
     );
 
     // unsuccessful cases
+    assert!(itf::from_value::<i64>(itf.clone()).is_err());
+    assert!(itf::from_value::<u64>(itf.clone()).is_err());
     assert!(itf::from_value::<num_bigint::BigUint>(itf.clone()).is_err());
     assert!(itf::from_value::<itf::value::BigInt>(itf.clone()).is_err());
     assert!(!matches!(
@@ -137,47 +137,79 @@ fn test_bigint_to_int() {
 }
 
 #[test]
-fn test_enum_deserialization_failure() {
-    let itf = serde_json::json!({
-        "_foo": {"#bigint": "1"},
-        "typ": "Foo",
-    });
+fn test_deserialize_any() {
+    use itf::de::Integer;
+    use num_bigint::BigInt;
+    use serde_with::As;
+    use std::collections::HashMap;
 
+    let itf = serde_json::json!([{
+        "_foo": {"#map": [[{"#bigint": "1"}, {"#bigint": "2"}]]},
+        "typ": "Foo",
+    },
+    {
+        "_bar": [[[{"#bigint": "1"}, {"#bigint": "2"}]]],
+        "typ": "Bar",
+    }
+
+    ]);
+
+    // deserialize as bigints
+    #[derive(Deserialize, Debug)]
+    #[serde(tag = "typ")]
+    enum FooBarBigInt {
+        Foo { _foo: HashMap<BigInt, BigInt> },
+        Bar { _bar: Vec<Vec<(BigInt, BigInt)>> },
+    }
+    itf::from_value::<Vec<FooBarBigInt>>(itf.clone()).unwrap();
+
+    // deserialize as i64
     #[derive(Deserialize, Debug)]
     #[serde(tag = "typ")]
     enum FooBarInt {
         // try to deserialize _foo as i64, instead of BigInt
-        Foo { _foo: i64 },
-        Bar { _bar: String },
-    }
-
-    assert!(itf::from_value::<FooBarInt>(itf.clone()).is_err());
-
-    #[derive(Deserialize, Debug)]
-    #[serde(tag = "typ")]
-    enum FooBarWithInt {
-        // try to deserialize _foo as i64, via a conversion from BigInt
         Foo {
-            #[serde(deserialize_with = "itf::de::from_bigint")]
-            _foo: i64,
+            #[serde(with = "As::<HashMap<Integer, Integer>>")]
+            _foo: HashMap<i64, i64>,
         },
         Bar {
-            _bar: String,
+            #[serde(with = "As::<Vec<Vec<(Integer, Integer)>>>")]
+            _bar: Vec<Vec<(i64, i64)>>,
         },
     }
-    itf::from_value::<FooBarWithInt>(itf.clone()).unwrap();
+    itf::from_value::<Vec<FooBarInt>>(itf.clone()).unwrap();
 
-    assert!(itf::from_value::<FooBarWithInt>(itf.clone()).is_ok());
-
+    // deserialize as mix
     #[derive(Deserialize, Debug)]
     #[serde(tag = "typ")]
-    enum FooBarBigInt {
-        // can deserialize _foo to BigInt
-        Foo { _foo: num_bigint::BigInt },
-        Bar { _bar: String },
+    enum FooBarMixInt {
+        // try to deserialize _foo as i64, instead of BigInt
+        Foo {
+            #[serde(with = "As::<HashMap<Integer, Integer>>")]
+            _foo: HashMap<i64, BigInt>,
+        },
+        Bar {
+            #[serde(with = "As::<Vec<Vec<(Integer, Integer)>>>")]
+            _bar: Vec<Vec<(BigInt, u64)>>,
+        },
     }
+    itf::from_value::<Vec<FooBarMixInt>>(itf.clone()).unwrap();
+}
 
-    assert!(itf::from_value::<FooBarBigInt>(itf).is_ok());
+#[test]
+fn test_failed_bare_bigint_to_int() {
+    use itf::de::Integer;
+    use serde_with::de::DeserializeAsWrap;
+
+    let itf = serde_json::json!({
+        "#bigint": "12",
+    });
+
+    let itf_value = serde_json::from_value::<itf::Value>(itf.clone()).unwrap();
+
+    assert!(i64::deserialize(itf_value.clone()).is_err());
+
+    assert!(DeserializeAsWrap::<i64, Integer>::deserialize(itf_value).is_ok());
 }
 
 #[test]
@@ -197,8 +229,6 @@ fn test_complete() {
         _number: i64,
         _str: String,
         _bigint: num_bigint::BigInt,
-        _int_from_bigint: i64,
-        _bigint_from_int: num_bigint::BigInt,
         _list: Vec<num_bigint::BigInt>,
         _tuple: (String, num_bigint::BigInt),
         _set: HashSet<num_bigint::BigInt>,
