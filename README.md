@@ -12,7 +12,7 @@ Rust library for consuming [Apalache ITF Traces][itf-adr].
 
 ## API Documentation
 
-The [API documentation][docs-link] is available on crates.io.
+The [API documentation][docs-link] is available on `docs.rs`.
 
 ## Example
 
