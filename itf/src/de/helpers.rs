@@ -1,14 +1,11 @@
-use std::fmt::Display;
-
 use num_bigint::BigInt;
-use serde::de::Error;
-use serde::Deserialize;
-use serde_with::DeserializeAs;
 
 pub use serde_with::As;
 
 /// Helper for `serde` to deserialize a `BigInt` to
 /// any type which implements `TryFrom<num_bigint::BigInt>`.
+///
+/// To be used in conjunction with [`As`].
 ///
 /// ## Example
 ///
@@ -73,19 +70,4 @@ pub use serde_with::As;
 /// }
 /// itf::from_value::<Vec<FooBarMixInt>>(json.clone()).unwrap();
 /// ```
-
-pub struct Integer;
-
-impl<'de, A> DeserializeAs<'de, A> for Integer
-where
-    A: TryFrom<BigInt>,
-    <A as TryFrom<BigInt>>::Error: Display,
-{
-    fn deserialize_as<D>(deserializer: D) -> Result<A, D::Error>
-    where
-        D: serde::Deserializer<'de>,
-    {
-        let bigint = BigInt::deserialize(deserializer).map_err(D::Error::custom)?;
-        A::try_from(bigint).map_err(D::Error::custom)
-    }
-}
+pub type Integer = serde_with::TryFromInto<BigInt>;
