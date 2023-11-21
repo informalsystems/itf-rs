@@ -1,4 +1,3 @@
-use num_traits::ToPrimitive;
 use serde::de::value::{MapDeserializer, SeqDeserializer};
 use serde::de::{
     DeserializeSeed, Deserializer, EnumAccess, Expected, IntoDeserializer, Unexpected,
@@ -43,16 +42,6 @@ macro_rules! deserialize_number {
                 Value::Number(n) => {
                     let num = <$ty>::try_from(n).map_err(|_| {
                         serde::de::Error::invalid_type(Unexpected::Signed(n), &stringify!($ty))
-                    })?;
-
-                    visitor.$visit(num)
-                }
-                Value::BigInt(b) => {
-                    let num = b.get().$to().ok_or_else(|| {
-                        serde::de::Error::invalid_type(
-                            Unexpected::Other("bigint"),
-                            &stringify!($ty),
-                        )
                     })?;
 
                     visitor.$visit(num)
