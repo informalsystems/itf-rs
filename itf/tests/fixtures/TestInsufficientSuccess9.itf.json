@@ -4,12 +4,7 @@
     "format-description": "https://apalache.informal.systems/docs/adr/015adr-trace.html",
     "description": "Created by Apalache on Sat Sep 24 20:45:34 CEST 2022"
   },
-  "vars": [
-    "outcome",
-    "balances",
-    "action",
-    "step"
-  ],
+  "vars": ["outcome", "balances", "action", "step"],
   "states": [
     {
       "#meta": {
@@ -22,18 +17,9 @@
               "Carol",
               {
                 "#map": [
-                  [
-                    "atom",
-                    0
-                  ],
-                  [
-                    "muon",
-                    0
-                  ],
-                  [
-                    "gluon",
-                    0
-                  ]
+                  ["atom", { "#bigint": "0" }],
+                  ["muon", { "#bigint": "0" }],
+                  ["gluon", { "#bigint": "0" }]
                 ]
               }
             ],
@@ -41,18 +27,9 @@
               "Eve",
               {
                 "#map": [
-                  [
-                    "atom",
-                    0
-                  ],
-                  [
-                    "muon",
-                    0
-                  ],
-                  [
-                    "gluon",
-                    0
-                  ]
+                  ["atom", { "#bigint": "0" }],
+                  ["muon", { "#bigint": "0" }],
+                  ["gluon", { "#bigint": "0" }]
                 ]
               }
             ],
@@ -110,18 +87,9 @@
               "Dave",
               {
                 "#map": [
-                  [
-                    "atom",
-                    0
-                  ],
-                  [
-                    "muon",
-                    0
-                  ],
-                  [
-                    "gluon",
-                    0
-                  ]
+                  ["atom", { "#bigint": "0" }],
+                  ["muon", { "#bigint": "0" }],
+                  ["gluon", { "#bigint": "0" }]
                 ]
               }
             ]
@@ -135,18 +103,9 @@
             "Carol",
             {
               "#map": [
-                [
-                  "atom",
-                  0
-                ],
-                [
-                  "muon",
-                  0
-                ],
-                [
-                  "gluon",
-                  0
-                ]
+                ["atom", { "#bigint": "0" }],
+                ["muon", { "#bigint": "0" }],
+                ["gluon", { "#bigint": "0" }]
               ]
             }
           ],
@@ -154,18 +113,9 @@
             "Eve",
             {
               "#map": [
-                [
-                  "atom",
-                  0
-                ],
-                [
-                  "muon",
-                  0
-                ],
-                [
-                  "gluon",
-                  0
-                ]
+                ["atom", { "#bigint": "0" }],
+                ["muon", { "#bigint": "0" }],
+                ["gluon", { "#bigint": "0" }]
               ]
             }
           ],
@@ -223,18 +173,9 @@
             "Dave",
             {
               "#map": [
-                [
-                  "atom",
-                  0
-                ],
-                [
-                  "muon",
-                  0
-                ],
-                [
-                  "gluon",
-                  0
-                ]
+                ["atom", { "#bigint": "0" }],
+                ["muon", { "#bigint": "0" }],
+                ["gluon", { "#bigint": "0" }]
               ]
             }
           ]
@@ -256,7 +197,7 @@
             "denom": "muon"
           },
           {
-            "amount": 2,
+            "amount": { "#bigint": "2" },
             "denom": "atom"
           },
           {
@@ -276,18 +217,9 @@
             "Carol",
             {
               "#map": [
-                [
-                  "muon",
-                  0
-                ],
-                [
-                  "gluon",
-                  0
-                ],
-                [
-                  "atom",
-                  0
-                ]
+                ["muon", { "#bigint": "0" }],
+                ["gluon", { "#bigint": "0" }],
+                ["atom", { "#bigint": "0" }]
               ]
             }
           ],
@@ -295,10 +227,7 @@
             "Eve",
             {
               "#map": [
-                [
-                  "atom",
-                  2
-                ],
+                ["atom", { "#bigint": "2" }],
                 [
                   "muon",
                   {
@@ -318,14 +247,8 @@
             "Alice",
             {
               "#map": [
-                [
-                  "gluon",
-                  2
-                ],
-                [
-                  "muon",
-                  2
-                ],
+                ["gluon", { "#bigint": "2" }],
+                ["muon", { "#bigint": "2" }],
                 [
                   "atom",
                   {
@@ -364,18 +287,9 @@
             "Dave",
             {
               "#map": [
-                [
-                  "gluon",
-                  0
-                ],
-                [
-                  "muon",
-                  0
-                ],
-                [
-                  "atom",
-                  0
-                ]
+                ["gluon", { "#bigint": "0" }],
+                ["muon", { "#bigint": "0" }],
+                ["atom", { "#bigint": "0" }]
               ]
             }
           ]
@@ -391,11 +305,11 @@
       "action": {
         "coins": [
           {
-            "amount": 1,
+            "amount": { "#bigint": "1" },
             "denom": "gluon"
           },
           {
-            "amount": 0,
+            "amount": { "#bigint": "0" },
             "denom": "gluon"
           }
         ],
@@ -409,18 +323,9 @@
             "Carol",
             {
               "#map": [
-                [
-                  "muon",
-                  0
-                ],
-                [
-                  "gluon",
-                  0
-                ],
-                [
-                  "atom",
-                  0
-                ]
+                ["muon", { "#bigint": "0" }],
+                ["gluon", { "#bigint": "0" }],
+                ["atom", { "#bigint": "0" }]
               ]
             }
           ],
@@ -440,10 +345,7 @@
                     "#bigint": "57896044618658097711785492504343953926634992332820282019728792003956564819965"
                   }
                 ],
-                [
-                  "atom",
-                  2
-                ]
+                ["atom", { "#bigint": "2" }]
               ]
             }
           ],
@@ -451,14 +353,8 @@
             "Alice",
             {
               "#map": [
-                [
-                  "muon",
-                  2
-                ],
-                [
-                  "gluon",
-                  2
-                ],
+                ["muon", { "#bigint": "2" }],
+                ["gluon", { "#bigint": "2" }],
                 [
                   "atom",
                   {
@@ -497,18 +393,9 @@
             "Dave",
             {
               "#map": [
-                [
-                  "gluon",
-                  0
-                ],
-                [
-                  "atom",
-                  0
-                ],
-                [
-                  "muon",
-                  0
-                ]
+                ["gluon", { "#bigint": "0" }],
+                ["atom", { "#bigint": "0" }],
+                ["muon", { "#bigint": "0" }]
               ]
             }
           ]
@@ -530,7 +417,7 @@
             "denom": "muon"
           },
           {
-            "amount": 3,
+            "amount": { "#bigint": "3" },
             "denom": "atom"
           }
         ],
@@ -544,18 +431,9 @@
             "Carol",
             {
               "#map": [
-                [
-                  "gluon",
-                  0
-                ],
-                [
-                  "atom",
-                  0
-                ],
-                [
-                  "muon",
-                  0
-                ]
+                ["gluon", { "#bigint": "0" }],
+                ["atom", { "#bigint": "0" }],
+                ["muon", { "#bigint": "0" }]
               ]
             }
           ],
@@ -575,10 +453,7 @@
                     "#bigint": "57896044618658097711785492504343953926634992332820282019728792003956564819965"
                   }
                 ],
-                [
-                  "atom",
-                  2
-                ]
+                ["atom", { "#bigint": "2" }]
               ]
             }
           ],
@@ -586,20 +461,14 @@
             "Alice",
             {
               "#map": [
-                [
-                  "gluon",
-                  2
-                ],
+                ["gluon", { "#bigint": "2" }],
                 [
                   "atom",
                   {
                     "#bigint": "57896044618658097711785492504343953926634992332820282019728792003956564819965"
                   }
                 ],
-                [
-                  "muon",
-                  2
-                ]
+                ["muon", { "#bigint": "2" }]
               ]
             }
           ],
@@ -632,18 +501,9 @@
             "Dave",
             {
               "#map": [
-                [
-                  "gluon",
-                  0
-                ],
-                [
-                  "muon",
-                  0
-                ],
-                [
-                  "atom",
-                  0
-                ]
+                ["gluon", { "#bigint": "0" }],
+                ["muon", { "#bigint": "0" }],
+                ["atom", { "#bigint": "0" }]
               ]
             }
           ]
@@ -659,15 +519,15 @@
       "action": {
         "coins": [
           {
-            "amount": 1,
+            "amount": { "#bigint": "1" },
             "denom": "gluon"
           },
           {
-            "amount": 1,
+            "amount": { "#bigint": "1" },
             "denom": "muon"
           },
           {
-            "amount": 1,
+            "amount": { "#bigint": "1" },
             "denom": "atom"
           }
         ],
@@ -681,18 +541,9 @@
             "Carol",
             {
               "#map": [
-                [
-                  "gluon",
-                  0
-                ],
-                [
-                  "atom",
-                  0
-                ],
-                [
-                  "muon",
-                  0
-                ]
+                ["gluon", { "#bigint": "0" }],
+                ["atom", { "#bigint": "0" }],
+                ["muon", { "#bigint": "0" }]
               ]
             }
           ],
@@ -712,10 +563,7 @@
                     "#bigint": "57896044618658097711785492504343953926634992332820282019728792003956564819965"
                   }
                 ],
-                [
-                  "atom",
-                  2
-                ]
+                ["atom", { "#bigint": "2" }]
               ]
             }
           ],
@@ -723,20 +571,14 @@
             "Alice",
             {
               "#map": [
-                [
-                  "gluon",
-                  2
-                ],
+                ["gluon", { "#bigint": "2" }],
                 [
                   "atom",
                   {
                     "#bigint": "57896044618658097711785492504343953926634992332820282019728792003956564819965"
                   }
                 ],
-                [
-                  "muon",
-                  2
-                ]
+                ["muon", { "#bigint": "2" }]
               ]
             }
           ],
@@ -769,18 +611,9 @@
             "Dave",
             {
               "#map": [
-                [
-                  "gluon",
-                  0
-                ],
-                [
-                  "muon",
-                  0
-                ],
-                [
-                  "atom",
-                  0
-                ]
+                ["gluon", { "#bigint": "0" }],
+                ["muon", { "#bigint": "0" }],
+                ["atom", { "#bigint": "0" }]
               ]
             }
           ]
@@ -791,4 +624,3 @@
     }
   ]
 }
-
