@@ -1,7 +1,10 @@
 /// Error type for the library.
 #[derive(Debug)]
 pub enum Error {
+    /// An error occured when deserializing the ITF-encoded JSON
     Json(serde_json::Error),
+
+    /// An error occured when decoding an ITF value into a Rust value
     Decode(crate::de::Error),
 }
 
