@@ -212,7 +212,6 @@ impl<'de> Deserializer<'de> for Value {
     {
         match self {
             Value::BigInt(v) => visit_bigint(v, visitor),
-            Value::Number(v) => visit_bigint(BigInt::new(v), visitor),
             _ => self.deserialize_seq(visitor),
         }
     }
