@@ -1,6 +1,8 @@
 # CHANGELOG
 
-## Unreleased
+## v0.2.0
+
+*November 21st, 2023*
 
 - Deserialize ITF values into native Rust types with a custom deserializer
   instead of having to go through `Itf<A>` wrapper type.
