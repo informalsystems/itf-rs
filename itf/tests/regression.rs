@@ -138,9 +138,8 @@ fn test_bigint_to_int() {
 
 #[test]
 fn test_deserialize_any() {
-    use itf::de::Integer;
+    use itf::de::{As, Integer};
     use num_bigint::BigInt;
-    use serde_with::As;
     use std::collections::HashMap;
 
     let itf = serde_json::json!([{

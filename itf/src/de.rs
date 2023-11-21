@@ -6,6 +6,7 @@ mod error;
 pub use error::Error;
 
 mod helpers;
+pub use helpers::As;
 pub use helpers::Integer;
 
 mod deserializer;

@@ -5,6 +5,8 @@ use serde::de::Error;
 use serde::Deserialize;
 use serde_with::DeserializeAs;
 
+pub use serde_with::As;
+
 pub struct Integer;
 
 impl<'de, A> DeserializeAs<'de, A> for Integer
