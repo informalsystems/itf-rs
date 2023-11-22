@@ -1,4 +1,5 @@
 
+[![API Documentation][docs-image]][docs-link]
 [![Build Status][build-image]][build-link]
 [![codecov][codecov-image]][codecov-link]
 [![Apache 2.0 Licensed][license-image]][license-link]
@@ -8,6 +9,10 @@
 # itf-rs
 
 Rust library for consuming [Apalache ITF Traces][itf-adr].
+
+## API Documentation
+
+The [API documentation][docs-link] is available on `docs.rs`.
 
 ## Example
 
@@ -239,6 +244,8 @@ Unless required by applicable law or agreed to in writing, software distributed 
 
 [build-image]: https://github.com/informalsystems/itf-rs/workflows/Rust/badge.svg
 [build-link]: https://github.com/informalsystems/itf-rs/actions?query=workflow%3ARust
+[docs-image]: https://docs.rs/itf/badge.svg
+[docs-link]: https://docs.rs/itf
 [codecov-image]: https://codecov.io/github/informalsystems/itf-rs/branch/main/graph/badge.svg?token=6LFLG9ILD1
 [codecov-link]: https://codecov.io/github/informalsystems/itf-rs
 [license-image]: https://img.shields.io/badge/license-Apache_2.0-blue.svg
