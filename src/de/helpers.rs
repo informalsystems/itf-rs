@@ -1,6 +1,6 @@
 use num_bigint::BigInt;
 
-pub use serde_with::As;
+pub use serde_with::{As, Same};
 
 /// Helper for `serde` to deserialize a `BigInt` to
 /// any type which implements `TryFrom<num_bigint::BigInt>`.
