@@ -5,10 +5,12 @@ use serde::Deserialize;
 
 pub mod de;
 pub mod error;
+pub mod runner;
 pub mod state;
 pub mod trace;
 
 pub use error::Error;
+pub use runner::Runner;
 pub use state::State;
 pub use trace::Trace;
 
