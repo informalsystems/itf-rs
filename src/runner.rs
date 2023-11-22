@@ -1,3 +1,5 @@
+use crate::Trace;
+
 pub trait Runner {
     type ActualState;
     type Result;
@@ -23,30 +25,30 @@ pub trait Runner {
         actual: &Self::ActualState,
         expected: &Self::ExpectedState,
     ) -> Result<bool, Self::Error>;
+}
 
-    fn test(
-        &mut self,
-        mut trace: impl Iterator<Item = Self::ExpectedState>,
-    ) -> Result<(), Self::Error> {
-        if let Some(expected_init) = trace.next() {
+impl<S> Trace<S> {
+    pub fn run_on<R, E>(&self, mut runner: R) -> Result<(), E>
+    where
+        R: Runner<ExpectedState = S, Error = E>,
+    {
+        if let Some(expected_init) = self.states.first() {
             eprintln!("step: Initial");
-            let mut actual = self.init(&expected_init)?;
+            let mut actual = runner.init(&expected_init.value)?;
             assert!(
-                self.state_invariant(&actual, &expected_init)?,
+                runner.state_invariant(&actual, &expected_init.value)?,
                 "State Invariant failed after Initialization"
             );
-            for (i, expected) in trace.enumerate() {
-                println!("step: {}", i + 1);
-                let result = self.step(&mut actual, &expected)?;
+            for (i, expected) in self.states.iter().enumerate().skip(1) {
+                println!("step: {i}");
+                let result = runner.step(&mut actual, &expected.value)?;
                 assert!(
-                    self.result_invariant(&result, &expected)?,
-                    "Result Invariant failed after step {}",
-                    i + 1
+                    runner.result_invariant(&result, &expected.value)?,
+                    "Result Invariant failed after step {i}",
                 );
                 assert!(
-                    self.state_invariant(&actual, &expected)?,
-                    "State Invariant failed after step {}",
-                    i + 1
+                    runner.state_invariant(&actual, &expected.value)?,
+                    "State Invariant failed after step {i}",
                 );
             }
         }
