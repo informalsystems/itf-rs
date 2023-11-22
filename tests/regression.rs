@@ -138,7 +138,7 @@ fn test_bigint_to_int() {
 
 #[test]
 fn test_deserialize_any() {
-    use itf::de::{As, Integer};
+    use itf::de::{As, Integer, Same};
     use num_bigint::BigInt;
     use std::collections::HashMap;
 
@@ -188,7 +188,7 @@ fn test_deserialize_any() {
             _foo: HashMap<i64, BigInt>,
         },
         Bar {
-            #[serde(with = "As::<Vec<Vec<(Integer, Integer)>>>")]
+            #[serde(with = "As::<Vec<Vec<(Same, Integer)>>>")]
             _bar: Vec<Vec<(BigInt, u64)>>,
         },
     }
