@@ -1,6 +1,8 @@
 # CHANGELOG
 
-## Unreleased
+## v0.2.1
+
+*November 28th, 2023*
 
 - Add a trace runner ([#9](https://github.com/informalsystems/itf-rs/pull/9))
 
