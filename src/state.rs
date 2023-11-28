@@ -6,7 +6,7 @@ use serde::{Deserialize, Serialize};
 use crate::error::Error;
 use crate::value::Value;
 
-/// Metada for an ITF [`State`].
+/// Metadata for an ITF [`State`].
 #[derive(Default, Debug, Clone, PartialEq, Eq, Serialize, Deserialize)]
 pub struct Meta {
     #[serde(default)]
