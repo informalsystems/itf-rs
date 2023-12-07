@@ -1,6 +1,6 @@
 # CHANGELOG
 
-## Unreleased
+## v0.2.2
 
 *December 7th, 2023*
 
