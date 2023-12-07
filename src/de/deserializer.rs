@@ -347,6 +347,10 @@ fn visit_record<'de, V>(record: Map<String, Value>, visitor: V) -> Result<V::Val
 where
     V: Visitor<'de>,
 {
+    if record.is_empty() {
+        return visitor.visit_unit();
+    }
+
     let mut deserializer = MapDeserializer::new(record.into_iter());
     let map = visitor.visit_map(&mut deserializer)?;
     Ok(map)
