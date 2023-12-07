@@ -1,6 +1,9 @@
 use num_bigint::BigInt;
+
 use serde::Deserialize;
 use serde_json::json;
+
+use itf::de::{As, Integer, Same};
 
 #[derive(Debug, PartialEq, Eq, Deserialize)]
 #[serde(tag = "tag", content = "value")]
@@ -44,4 +47,49 @@ fn test_deserialize_none() {
 
     let none = itf::from_value::<IntOption>(none_itf).unwrap();
     assert_eq!(none, IntOption::None);
+}
+
+#[derive(Debug, PartialEq, Eq, Deserialize)]
+#[serde(tag = "tag", content = "value")]
+enum Enum {
+    Foo,
+    Bar(String),
+    Baz((String, bool)),
+    #[serde(with = "As::<(Same, Integer, Same)>")]
+    FooBar(String, BigInt, bool),
+}
+
+#[test]
+#[allow(clippy::disallowed_names)]
+fn test_deserialize_enum() {
+    let foo_itf = json!({
+        "tag": "Foo",
+        "value": {},
+    });
+
+    let foo = itf::from_value::<Enum>(foo_itf).unwrap();
+    assert_eq!(foo, Enum::Foo);
+
+    let bar_itf = json!({
+        "tag": "Bar",
+        "value": "hello",
+    });
+
+    let bar = itf::from_value::<Enum>(bar_itf).unwrap();
+    assert_eq!(bar, Enum::Bar("hello".to_string()));
+
+    let baz_itf = json!({
+        "tag": "Baz",
+        "value": { "#tup": ["hello", true] },
+    });
+
+    let baz = itf::from_value::<Enum>(baz_itf).unwrap();
+    assert_eq!(baz, Enum::Baz(("hello".to_string(), true)));
+
+    let foobar_itf = json!({
+        "tag": "FooBar",
+        "value": { "#tup": ["hello", { "#bigint": "42" }, true] },
+    });
+    let foobar = itf::from_value::<Enum>(foobar_itf).unwrap();
+    assert_eq!(foobar, Enum::FooBar("hello".to_string(), 42.into(), true));
 }
