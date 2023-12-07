@@ -1,5 +1,11 @@
 # CHANGELOG
 
+## Unreleased
+
+*December 7th, 2023*
+
+- Add support for sum types ([#12](https://github.com/informalsystems/itf-rs/pull/12))
+
 ## v0.2.1
 
 *November 28th, 2023*
