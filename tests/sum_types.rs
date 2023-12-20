@@ -5,10 +5,17 @@ use serde_json::json;
 
 use itf::de::{As, Integer, Same};
 
+#[derive(Clone, Debug, Deserialize, PartialEq, Eq)]
+pub struct SomeMoreArgs {
+    pub x: BigInt,
+    pub y: bool,
+}
+
 #[derive(Debug, PartialEq, Eq, Deserialize)]
 #[serde(tag = "tag", content = "value")]
 enum IntOption {
     Some(BigInt),
+    SomeMore(SomeMoreArgs),
     None,
 }
 
@@ -25,6 +32,13 @@ fn parse_trace() {
     assert_eq!(trace.states[0].value.value, IntOption::None);
     assert_eq!(trace.states[1].value.value, IntOption::Some(40.into()));
     assert_eq!(trace.states[2].value.value, IntOption::Some(41.into()));
+    assert_eq!(
+        trace.states[3].value.value,
+        IntOption::SomeMore(SomeMoreArgs {
+            x: 41.into(),
+            y: true,
+        })
+    );
 }
 
 #[test]
