@@ -93,3 +93,47 @@ fn test_deserialize_enum() {
     let foobar = itf::from_value::<Enum>(foobar_itf).unwrap();
     assert_eq!(foobar, Enum::FooBar("hello".to_string(), 42.into(), true));
 }
+
+#[derive(Debug, PartialEq, Eq, Deserialize)]
+#[serde(tag = "tag", content = "value")]
+enum EnumRecords {
+    None,
+    OptionA { x: String },
+    OptionB { x: String, y: bool },
+}
+
+#[test]
+fn test_deserialize_record_enum() {
+    let option_a_itf = json!({
+        "tag": "OptionA",
+        "value": {"x": "hello"},
+    });
+
+    let a = itf::from_value::<EnumRecords>(option_a_itf).unwrap();
+    assert_eq!(
+        a,
+        EnumRecords::OptionA {
+            x: "hello".to_string()
+        }
+    );
+
+    let option_b_itf = json!({
+        "tag": "OptionB",
+        "value": {"x": "hello", "y": true},
+    });
+    let b = itf::from_value::<EnumRecords>(option_b_itf).unwrap();
+    assert_eq!(
+        b,
+        EnumRecords::OptionB {
+            x: "hello".to_string(),
+            y: true
+        }
+    );
+
+    let option_none_itf = json!({
+        "tag": "None",
+        "value": {},
+    });
+    let no_args = itf::from_value::<EnumRecords>(option_none_itf).unwrap();
+    assert_eq!(no_args, EnumRecords::None);
+}
