@@ -38,6 +38,8 @@ macro_rules! deserialize_number {
         where
             V: Visitor<'de>,
         {
+            use num_traits::ToPrimitive;
+
             match self {
                 Value::Number(n) => {
                     let num = <$ty>::try_from(n).map_err(|_| {
@@ -46,6 +48,18 @@ macro_rules! deserialize_number {
 
                     visitor.$visit(num)
                 }
+
+                Value::BigInt(b) => {
+                    let num = b.get().$to().ok_or_else(|| {
+                        serde::de::Error::custom(format!(
+                            "BigInt {b} does not fit into {}",
+                            stringify!($ty)
+                        ))
+                    })?;
+
+                    visitor.$visit(num)
+                }
+
                 _ => Err(self.invalid_type(&visitor)),
             }
         }

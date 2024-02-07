@@ -47,14 +47,14 @@ fn test_num_bigint() {
 fn test_bigint_deser() {
     let itf = serde_json::json!({"#bigint": "-99"});
 
-    // successful case; only BigInt
+    // successful cases
+    assert_eq!(-99_i64, itf::from_value::<i64>(itf.clone()).unwrap());
     assert_eq!(
         num_bigint::BigInt::from(-99),
         itf::from_value(itf.clone()).unwrap()
     );
 
     // unsuccessful cases
-    assert!(itf::from_value::<i64>(itf.clone()).is_err());
     assert!(itf::from_value::<u64>(itf.clone()).is_err());
     assert!(itf::from_value::<itf::value::BigInt>(itf.clone()).is_err());
     assert!(!matches!(
@@ -67,15 +67,15 @@ fn test_bigint_deser() {
 fn test_biguint_deser() {
     let itf = serde_json::json!({"#bigint": "99"});
 
-    // successful case; only BigInt
+    // successful cases
     assert_eq!(
         num_bigint::BigInt::from(99),
         itf::from_value(itf.clone()).unwrap()
     );
+    assert_eq!(99_i64, itf::from_value::<i64>(itf.clone()).unwrap());
+    assert_eq!(99_u64, itf::from_value::<u64>(itf.clone()).unwrap());
 
     // unsuccessful cases
-    assert!(itf::from_value::<i64>(itf.clone()).is_err());
-    assert!(itf::from_value::<u64>(itf.clone()).is_err());
     assert!(itf::from_value::<num_bigint::BigUint>(itf.clone()).is_err());
     assert!(itf::from_value::<itf::value::BigInt>(itf.clone()).is_err());
     assert!(!matches!(
@@ -196,22 +196,6 @@ fn test_deserialize_any() {
 }
 
 #[test]
-fn test_failed_bare_bigint_to_int() {
-    use itf::de::Integer;
-    use serde_with::de::DeserializeAsWrap;
-
-    let itf = serde_json::json!({
-        "#bigint": "12",
-    });
-
-    let itf_value = serde_json::from_value::<itf::Value>(itf.clone()).unwrap();
-
-    assert!(i64::deserialize(itf_value.clone()).is_err());
-
-    assert!(DeserializeAsWrap::<i64, Integer>::deserialize(itf_value).is_ok());
-}
-
-#[test]
 fn test_complete() {
     use std::collections::{BTreeSet, HashMap, HashSet};
 
@@ -250,4 +234,36 @@ fn test_complete() {
     });
 
     let _: Complete = itf::from_value(itf).unwrap();
+}
+
+#[test]
+#[allow(clippy::disallowed_names)]
+fn test_bigint_to_int_auto() {
+    #[derive(Debug, Deserialize)]
+    struct Foo {
+        integer: u64,
+    }
+
+    let itf = serde_json::json!({
+        "integer": {"#bigint": "999"},
+    });
+
+    let foo: Foo = itf::from_value(itf).unwrap();
+    assert_eq!(foo.integer, 999);
+}
+
+#[test]
+#[allow(clippy::disallowed_names)]
+#[should_panic = "BigInt -999 does not fit into u64"]
+fn test_bigint_to_int_auto_fails() {
+    #[derive(Debug, Deserialize)]
+    struct Foo {
+        _integer: u64,
+    }
+
+    let itf = serde_json::json!({
+        "_integer": {"#bigint": "-999"},
+    });
+
+    let _foo: Foo = itf::from_value(itf).unwrap();
 }
