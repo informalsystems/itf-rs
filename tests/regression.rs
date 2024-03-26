@@ -253,9 +253,10 @@ fn test_complete() {
     let _: Complete = itf::from_value(itf).unwrap();
 }
 
+// Test extracted from the malachite MBT tests
 #[test]
 fn test_enum_unit_variant() {
-    #[derive(Debug, PartialEq, serde::Deserialize)]
+    #[derive(Debug, PartialEq, Deserialize)]
     #[serde(tag = "tag", content = "value")]
     pub enum VKOutput {
         #[serde(rename = "NoVKOutput")]
