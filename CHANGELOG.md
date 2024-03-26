@@ -1,5 +1,10 @@
 # CHANGELOG
 
+## Unreleased
+
+- Compatibility with Quint v0.19.0
+- Deserialize empty tuple as unit ([#15](https://github.com/informalsystems/itf-rs/pull/15))
+
 ## v0.2.2
 
 *December 7th, 2023*
