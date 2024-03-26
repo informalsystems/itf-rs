@@ -73,6 +73,7 @@ impl<'de> Deserializer<'de> for Value {
             Value::String(v) => visitor.visit_string(v),
             Value::BigInt(v) => visit_bigint(v, visitor),
             Value::List(v) => visit_list(v, visitor),
+            Value::Tuple(v) if v.is_empty() => visitor.visit_unit(),
             Value::Tuple(v) => visit_tuple(v, visitor),
             Value::Set(v) => visit_set(v, visitor),
             Value::Record(v) => visit_record(v, visitor),

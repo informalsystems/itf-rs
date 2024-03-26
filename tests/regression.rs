@@ -215,6 +215,7 @@ fn test_failed_bare_bigint_to_int() {
 fn test_complete() {
     use std::collections::{BTreeSet, HashMap, HashSet};
 
+    #[allow(dead_code)]
     #[derive(Deserialize, Debug)]
     #[serde(untagged)]
     enum RecordEnum {
@@ -250,4 +251,33 @@ fn test_complete() {
     });
 
     let _: Complete = itf::from_value(itf).unwrap();
+}
+
+// Test extracted from the malachite MBT tests
+#[test]
+fn test_enum_unit_variant() {
+    #[derive(Debug, PartialEq, Deserialize)]
+    #[serde(tag = "tag", content = "value")]
+    pub enum VKOutput {
+        #[serde(rename = "NoVKOutput")]
+        NoOutput,
+    }
+
+    let obj = serde_json::json!({
+        "lastEmitted": {
+            "tag": "NoVKOutput",
+            "value": {
+                "#tup": []
+            }
+        }
+    });
+
+    #[derive(serde::Deserialize)]
+    #[serde(rename_all = "camelCase")]
+    struct Test {
+        last_emitted: VKOutput,
+    }
+
+    let itf_value = itf::from_value::<Test>(obj).unwrap();
+    assert_eq!(itf_value.last_emitted, VKOutput::NoOutput);
 }
