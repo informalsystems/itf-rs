@@ -1,6 +1,8 @@
 # CHANGELOG
 
-## Unreleased
+## v0.2.4
+
+*May 16th, 2024*
 
 - Add helpers to deserialize into `std::option::Option` or `std::result::Result` ([#17](https://github.com/informalsystems/itf-rs/pull/17))
 
