@@ -1,3 +1,5 @@
+//! Error type for the library.
+
 /// Error type for the library.
 #[derive(Debug)]
 pub enum Error {

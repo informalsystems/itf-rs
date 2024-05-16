@@ -1,3 +1,5 @@
+//! Infrastructure for running a trace against a concrete implementation.
+
 use crate::Trace;
 
 pub trait Runner {

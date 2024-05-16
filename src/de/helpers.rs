@@ -85,7 +85,6 @@ pub type Integer = serde_with::TryFromInto<BigInt>;
 ///
 /// use itf::de::{self, As};
 ///
-///
 /// #[derive(Debug, PartialEq, Deserialize)]
 /// struct FooOption {
 ///     #[serde(with = "As::<de::Option::<_>>")]

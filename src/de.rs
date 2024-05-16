@@ -1,3 +1,5 @@
+//! Helpers for annotating types to deserialize from ITF values.
+
 use serde::de::DeserializeOwned;
 
 use crate::Value;
