@@ -1,5 +1,6 @@
 use std::fmt;
 
+/// Error type for deserialization.
 #[derive(Debug)]
 pub enum Error {
     Custom(String),

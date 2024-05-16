@@ -1,3 +1,5 @@
+//! Defines an ITF trace.
+
 use std::collections::BTreeMap;
 
 use serde::de::DeserializeOwned;
