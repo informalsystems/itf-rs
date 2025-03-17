@@ -7,7 +7,7 @@ use std::collections::BTreeSet;
 /// However, it is only a syntax form in our format.
 /// Apalache distinguishes between sets and lists and thus it will output sets in the set form.
 /// Other tools may interpret sets as lists.
-#[derive(Clone, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Set<V> {
     set: BTreeSet<V>,
 }
@@ -19,8 +19,55 @@ impl<V> Set<V> {
         }
     }
 
+    pub fn insert(&mut self, value: V) -> bool
+    where
+        V: Ord,
+    {
+        self.set.insert(value)
+    }
+
+    pub fn remove(&mut self, value: &V) -> bool
+    where
+        V: Ord,
+    {
+        self.set.remove(value)
+    }
+
+    pub fn contains(&self, value: &V) -> bool
+    where
+        V: Ord,
+    {
+        self.set.contains(value)
+    }
+
     pub fn iter(&self) -> impl Iterator<Item = &V> {
         self.set.iter()
+    }
+}
+
+impl<V> Default for Set<V> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl<V> From<BTreeSet<V>> for Set<V> {
+    fn from(set: BTreeSet<V>) -> Self {
+        Self { set }
+    }
+}
+
+impl<V> FromIterator<V> for Set<V>
+where
+    V: Ord,
+{
+    fn from_iter<I>(iter: I) -> Self
+    where
+        I: IntoIterator<Item = V>,
+    {
+        Self {
+            set: iter.into_iter().collect(),
+        }
     }
 }
 

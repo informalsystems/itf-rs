@@ -12,14 +12,44 @@ use std::collections::BTreeMap;
 /// It does not have to be a string or an integer.
 ///
 /// TLA+ functions are written as maps in this format.
-#[derive(Default, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Map<K, V> {
     map: BTreeMap<K, V>,
 }
 
 impl<K, V> Map<K, V> {
-    pub fn new(map: BTreeMap<K, V>) -> Self {
-        Self { map }
+    pub fn new() -> Self {
+        Self {
+            map: BTreeMap::new(),
+        }
+    }
+
+    pub fn insert(&mut self, key: K, value: V) -> Option<V>
+    where
+        K: Ord,
+    {
+        self.map.insert(key, value)
+    }
+
+    pub fn remove(&mut self, key: &K) -> Option<V>
+    where
+        K: Ord,
+    {
+        self.map.remove(key)
+    }
+
+    pub fn get(&self, key: &K) -> Option<&V>
+    where
+        K: Ord,
+    {
+        self.map.get(key)
+    }
+
+    pub fn contains_key(&self, key: &K) -> bool
+    where
+        K: Ord,
+    {
+        self.map.contains_key(key)
     }
 
     pub fn iter(&self) -> impl Iterator<Item = (&K, &V)> {
@@ -32,6 +62,32 @@ impl<K, V> Map<K, V> {
 
     pub fn len(&self) -> usize {
         self.map.len()
+    }
+}
+
+impl<K, V> Default for Map<K, V> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl<K, V> From<BTreeMap<K, V>> for Map<K, V> {
+    fn from(map: BTreeMap<K, V>) -> Self {
+        Self { map }
+    }
+}
+
+impl<K, V> FromIterator<(K, V)> for Map<K, V>
+where
+    K: Ord,
+{
+    fn from_iter<I>(iter: I) -> Self
+    where
+        I: IntoIterator<Item = (K, V)>,
+    {
+        Self {
+            map: iter.into_iter().collect(),
+        }
     }
 }
 

@@ -9,14 +9,32 @@ use crate::value::Value;
 /// hence should not pose any collision with other constructs.
 /// TLA+ records are written as records in this format.
 
-#[derive(Default, Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Clone, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Record {
     map: BTreeMap<String, Value>,
 }
 
 impl Record {
-    pub fn new(map: BTreeMap<String, Value>) -> Self {
-        Self { map }
+    pub fn new() -> Self {
+        Self {
+            map: BTreeMap::new(),
+        }
+    }
+
+    pub fn insert(&mut self, key: String, value: Value) -> Option<Value> {
+        self.map.insert(key, value)
+    }
+
+    pub fn remove(&mut self, key: &str) -> Option<Value> {
+        self.map.remove(key)
+    }
+
+    pub fn get(&self, key: &str) -> Option<&Value> {
+        self.map.get(key)
+    }
+
+    pub fn contains_key(&self, key: &str) -> bool {
+        self.map.contains_key(key)
     }
 
     pub fn iter(&self) -> impl Iterator<Item = (&String, &Value)> {
@@ -29,6 +47,23 @@ impl Record {
 
     pub fn len(&self) -> usize {
         self.map.len()
+    }
+}
+
+impl From<BTreeMap<String, Value>> for Record {
+    fn from(map: BTreeMap<String, Value>) -> Self {
+        Self { map }
+    }
+}
+
+impl FromIterator<(String, Value)> for Record {
+    fn from_iter<I>(iter: I) -> Self
+    where
+        I: IntoIterator<Item = (String, Value)>,
+    {
+        Self {
+            map: iter.into_iter().collect(),
+        }
     }
 }
 

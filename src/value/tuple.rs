@@ -4,7 +4,7 @@ use core::fmt;
 ///
 /// There is no strict rule about when to use sequences or tuples.
 /// Apalache differentiates between tuples and sequences, and it may produce both forms of expressions.
-#[derive(Clone, Default, PartialEq, Eq, PartialOrd, Ord, Hash)]
+#[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
 pub struct Tuple<V> {
     elements: Vec<V>,
 }
@@ -26,6 +26,29 @@ impl<V> Tuple<V> {
 
     pub fn iter(&self) -> impl Iterator<Item = &V> {
         self.elements.iter()
+    }
+}
+
+impl<V> Default for Tuple<V> {
+    fn default() -> Self {
+        Self::new()
+    }
+}
+
+impl<V> From<Vec<V>> for Tuple<V> {
+    fn from(elements: Vec<V>) -> Self {
+        Self { elements }
+    }
+}
+
+impl<V> FromIterator<V> for Tuple<V> {
+    fn from_iter<I>(iter: I) -> Self
+    where
+        I: IntoIterator<Item = V>,
+    {
+        Self {
+            elements: iter.into_iter().collect(),
+        }
     }
 }
 
