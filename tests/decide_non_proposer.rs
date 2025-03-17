@@ -233,3 +233,13 @@ fn deserialize() {
     let trace = itf::trace_from_str::<State>(data).unwrap();
     dbg!(trace);
 }
+
+#[test]
+fn ser_de() {
+    let data = include_str!("../tests/fixtures/DecideNonProposerTest0.itf.json");
+    let trace = itf::trace_from_str::<itf::Value>(data).unwrap();
+    let json = serde_json::to_string(&trace).unwrap();
+    let trace2 = itf::trace_from_str::<itf::Value>(&json).unwrap();
+
+    assert_eq!(trace, trace2);
+}
