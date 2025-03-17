@@ -213,6 +213,7 @@ fn test_failed_bare_bigint_to_int() {
 
 #[test]
 fn test_complete() {
+    use num_bigint::BigInt;
     use std::collections::{BTreeSet, HashMap, HashSet};
 
     #[allow(dead_code)]
@@ -223,16 +224,24 @@ fn test_complete() {
         Two { _foo: String, _bar: i64 },
     }
 
+    #[allow(dead_code)]
+    #[derive(Deserialize, Debug)]
+    struct Rec {
+        foo: BigInt,
+        bar: BigInt,
+    }
+
     #[derive(Deserialize, Debug)]
     struct Complete {
         _bool: bool,
         _number: i64,
         _str: String,
-        _bigint: num_bigint::BigInt,
-        _list: Vec<num_bigint::BigInt>,
-        _tuple: (String, num_bigint::BigInt),
-        _set: HashSet<num_bigint::BigInt>,
-        _map: HashMap<BTreeSet<num_bigint::BigInt>, num_bigint::BigInt>,
+        _bigint: BigInt,
+        _list: Vec<BigInt>,
+        _tuple: (String, BigInt),
+        _set: HashSet<BigInt>,
+        _map: HashMap<BTreeSet<BigInt>, BigInt>,
+        _record: Rec,
         _enum: Vec<RecordEnum>,
     }
 
@@ -247,6 +256,7 @@ fn test_complete() {
         "_tuple": {"#tup": ["hello", {"#bigint": "999"}]},
         "_set": {"#set": [{"#bigint": "1"}, {"#bigint": "2"}, {"#bigint": "3"}]},
         "_map": {"#map": [[{"#set": [{"#bigint": "1"}, {"#bigint": "2"}]}, {"#bigint": "3"}], [{"#set": [{"#bigint": "2"}, {"#bigint": "3"}]}, {"#bigint": "4"}]]},
+        "_record": {"foo": {"#bigint": "1"}, "bar": {"#bigint": "2"}},
         "_enum": [{"#tup": [1, "hello"]}, {"_foo": "hello", "_bar": 1}],
     });
 

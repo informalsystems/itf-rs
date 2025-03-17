@@ -6,7 +6,7 @@ use serde::de::{
 use serde::Deserialize;
 
 use crate::de::Error;
-use crate::value::{BigInt, Map, Set, Tuple, Value};
+use crate::value::{BigInt, Map, Record, Set, Tuple, Value};
 
 impl Value {
     fn invalid_type<E>(&self, exp: &dyn Expected) -> E
@@ -52,7 +52,7 @@ macro_rules! deserialize_number {
     };
 }
 
-impl<'de> IntoDeserializer<'de, Error> for Value {
+impl IntoDeserializer<'_, Error> for Value {
     type Deserializer = Self;
 
     fn into_deserializer(self) -> Self::Deserializer {
@@ -344,7 +344,7 @@ where
     Ok(map)
 }
 
-fn visit_record<'de, V>(record: Map<String, Value>, visitor: V) -> Result<V::Value, Error>
+fn visit_record<'de, V>(record: Record, visitor: V) -> Result<V::Value, Error>
 where
     V: Visitor<'de>,
 {

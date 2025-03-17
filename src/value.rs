@@ -2,23 +2,19 @@ use serde::{Deserialize, Serialize};
 
 mod bigint;
 mod map;
+mod record;
 mod set;
 mod tuple;
 mod unserializable;
 
 pub use bigint::BigInt;
 pub use map::Map;
+pub use record::Record;
 pub use set::Set;
 pub use tuple::Tuple;
 pub use unserializable::Unserializable;
 
 /// An ITF value, as per the [Apalache ITF format][itf-spec] specification.
-///
-/// This enum is hidden from the documentation, as it is not meant to be used directly
-/// because of pitfalls documented in [this PR][pitfalls].
-///
-/// [itf-spec]: https://apalache.informal.systems/docs/adr/015adr-trace.html
-/// [pitfalls]: https://github.com/informalsystems/itf-rs/pull/6#issuecomment-1817860601
 #[derive(Debug, Clone, PartialEq, Eq, PartialOrd, Ord, Hash, Serialize, Deserialize)]
 #[serde(untagged)]
 #[doc(hidden)]
@@ -78,7 +74,7 @@ pub enum Value {
     /// A record is just a JSON object. Field names should not start with `#` and
     /// hence should not pose any collision with other constructs.
     /// TLA+ records are written as records in this format.
-    Record(Map<String, Value>),
+    Record(Record),
 
     /// An expression that cannot be serialized: `{ "#unserializable": "<string representation>" }`.
     ///
