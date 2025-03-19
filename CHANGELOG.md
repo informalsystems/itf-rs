@@ -1,5 +1,12 @@
 # CHANGELOG
 
+## v0.3.0
+
+*March 19th, 2025*
+
+-  Improve collections API ([#20](https://github.com/informalsystems/itf-rs/pull/20))
+-  Introduce `Record` type to properly model records ([#19](https://github.com/informalsystems/itf-rs/pull/19))
+
 ## v0.2.4
 
 *May 16th, 2024*
