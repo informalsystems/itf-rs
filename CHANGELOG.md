@@ -3,6 +3,7 @@
 ## Unreleased
 
 - Switch from `num-bigint` to the [more performant](https://github.com/tczajka/bigint-benchmark-rs) `dashu` ([#22](https://github.com/informalsystems/itf-rs/pull/22))
+- Deserialize ITF bigints to primitive integers when the former fits in the latter ([#23](https://github.com/informalsystems/itf-rs/pull/23))
 
 ## v0.3.0
 
