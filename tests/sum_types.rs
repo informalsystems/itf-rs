@@ -1,4 +1,4 @@
-use num_bigint::BigInt;
+use dashu_int::IBig;
 
 use serde::Deserialize;
 use serde_json::json;
@@ -8,7 +8,7 @@ use itf::de::{As, Integer, Same};
 #[derive(Debug, PartialEq, Eq, Deserialize)]
 #[serde(tag = "tag", content = "value")]
 enum IntOption {
-    Some(BigInt),
+    Some(IBig),
     None,
 }
 
@@ -56,7 +56,7 @@ enum Enum {
     Bar(String),
     Baz((String, bool)),
     #[serde(with = "As::<(Same, Integer, Same)>")]
-    FooBar(String, BigInt, bool),
+    FooBar(String, IBig, bool),
 }
 
 #[test]

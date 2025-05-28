@@ -12,8 +12,7 @@ documentation = "https://docs.rs/itf"
 rust-version  = "1.65"
 
 [dependencies]
-num-bigint = { version = "0.4", features = ["serde"] }
-num-traits = { version = "0.2" }
+dashu-int  = { version = "0.4.1", features = ["serde"] }
 serde      = { version = "1", features = ["derive"] }
 serde_json = { version = "1", features = ["raw_value"] }
 serde_with = { version = "3.4.0" }

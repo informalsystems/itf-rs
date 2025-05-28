@@ -1,10 +1,10 @@
-use num_bigint::BigInt;
+use dashu_int::IBig;
 use serde::{Deserialize, Serialize};
 
 pub use serde_with::{As, Same};
 
 /// Helper for `serde` to deserialize a `BigInt` to
-/// any type which implements `TryFrom<num_bigint::BigInt>`.
+/// any type which implements `TryFrom<dashu_int::IBig>`.
 ///
 /// To be used in conjunction with [`As`].
 ///
@@ -13,7 +13,7 @@ pub use serde_with::{As, Same};
 /// ```rust
 /// use std::collections::HashMap;
 ///
-/// use num_bigint::BigInt;
+/// use dashu_int::IBig;
 /// use serde::Deserialize;
 ///
 /// use itf::Trace;
@@ -30,12 +30,12 @@ pub use serde_with::{As, Same};
 ///     }
 /// ]);
 ///
-/// // Deserialize as `num_bigint::BigInt`
+/// // Deserialize as `dashu_int::IBig`
 /// #[derive(Deserialize, Debug)]
 /// #[serde(tag = "typ")]
 /// enum FooBarBigInt {
-///     Foo { _foo: HashMap<BigInt, BigInt> },
-///     Bar { _bar: Vec<Vec<(BigInt, BigInt)>> },
+///     Foo { _foo: HashMap<IBig, IBig> },
+///     Bar { _bar: Vec<Vec<(IBig, IBig)>> },
 /// }
 /// itf::from_value::<Vec<FooBarBigInt>>(json.clone()).unwrap();
 ///
@@ -62,16 +62,16 @@ pub use serde_with::{As, Same};
 ///     // try to deserialize _foo as i64, instead of BigInt
 ///     Foo {
 ///         #[serde(with = "As::<HashMap<Integer, Integer>>")]
-///         _foo: HashMap<i64, BigInt>,
+///         _foo: HashMap<i64, IBig>,
 ///     },
 ///     Bar {
 ///         #[serde(with = "As::<Vec<Vec<(Integer, Integer)>>>")]
-///         _bar: Vec<Vec<(BigInt, u64)>>,
+///         _bar: Vec<Vec<(IBig, u64)>>,
 ///     },
 /// }
 /// itf::from_value::<Vec<FooBarMixInt>>(json.clone()).unwrap();
 /// ```
-pub type Integer = serde_with::TryFromInto<BigInt>;
+pub type Integer = serde_with::TryFromInto<IBig>;
 
 /// Helper for `serde` to deserialize types isomorphic to [`std::option::Option`].
 ///
