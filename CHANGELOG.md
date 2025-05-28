@@ -2,6 +2,12 @@
 
 ## Unreleased
 
+Nothing yet.
+
+## v0.4.0
+
+*May 25th, 2025*
+
 - Switch from `num-bigint` to the [more performant](https://github.com/tczajka/bigint-benchmark-rs) `dashu` ([#22](https://github.com/informalsystems/itf-rs/pull/22))
 - Deserialize ITF bigints to primitive integers when the former fits in the latter ([#23](https://github.com/informalsystems/itf-rs/pull/23))
 
