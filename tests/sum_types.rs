@@ -3,7 +3,7 @@ use dashu_int::IBig;
 use serde::Deserialize;
 use serde_json::json;
 
-use itf::de::{As, Integer, Same};
+use itf::de::As;
 
 #[derive(Debug, PartialEq, Eq, Deserialize)]
 #[serde(tag = "tag", content = "value")]
@@ -55,7 +55,6 @@ enum Enum {
     Foo,
     Bar(String),
     Baz((String, bool)),
-    #[serde(with = "As::<(Same, Integer, Same)>")]
     FooBar(String, IBig, bool),
 }
 

@@ -33,8 +33,9 @@ fn test_bigint_deser() {
         itf::from_value(itf.clone()).unwrap()
     );
 
+    assert_eq!(itf::from_value::<i64>(itf.clone()).unwrap(), -99);
+
     // unsuccessful cases
-    assert!(itf::from_value::<i64>(itf.clone()).is_err());
     assert!(itf::from_value::<u64>(itf.clone()).is_err());
     assert!(itf::from_value::<itf::value::BigInt>(itf.clone()).is_err());
     assert!(!matches!(
@@ -57,9 +58,10 @@ fn test_biguint_deser() {
         itf::from_value(itf.clone()).unwrap()
     );
 
+    assert_eq!(99, itf::from_value::<i64>(itf.clone()).unwrap());
+    assert_eq!(99, itf::from_value::<u64>(itf.clone()).unwrap());
+
     // unsuccessful cases
-    assert!(itf::from_value::<i64>(itf.clone()).is_err());
-    assert!(itf::from_value::<u64>(itf.clone()).is_err());
     assert!(itf::from_value::<itf::value::BigInt>(itf.clone()).is_err());
     assert!(!matches!(
         itf::from_value::<itf::Value>(itf.clone()).unwrap(),
@@ -189,8 +191,7 @@ fn test_failed_bare_bigint_to_int() {
 
     let itf_value = serde_json::from_value::<itf::Value>(itf.clone()).unwrap();
 
-    assert!(i64::deserialize(itf_value.clone()).is_err());
-
+    assert!(i64::deserialize(itf_value.clone()).is_ok());
     assert!(DeserializeAsWrap::<i64, Integer>::deserialize(itf_value).is_ok());
 }
 

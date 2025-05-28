@@ -46,6 +46,16 @@ macro_rules! deserialize_number {
 
                     visitor.$visit(num)
                 }
+                Value::BigInt(v) => {
+                    let num = <$ty>::try_from(v.into_inner()).map_err(|_| {
+                        serde::de::Error::invalid_type(
+                            Unexpected::Other("bigint"),
+                            &stringify!($ty),
+                        )
+                    })?;
+
+                    visitor.$visit(num)
+                }
                 _ => Err(self.invalid_type(&visitor)),
             }
         }
