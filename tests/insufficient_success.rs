@@ -2,10 +2,10 @@
 
 use std::collections::HashMap;
 
-use num_bigint::BigInt;
+use dashu_int::IBig;
 use serde::Deserialize;
 
-type Balance = HashMap<String, BigInt>;
+type Balance = HashMap<String, IBig>;
 type Balances = HashMap<String, Balance>;
 
 #[derive(Copy, Clone, Debug, Deserialize)]
@@ -22,7 +22,7 @@ enum Outcome {
 
 #[derive(Clone, Debug, Deserialize)]
 struct Coin {
-    amount: BigInt,
+    amount: IBig,
     denom: String,
 }
 

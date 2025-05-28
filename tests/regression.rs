@@ -24,32 +24,12 @@ fn test_set() {
 }
 
 #[test]
-fn test_num_bigint() {
-    let itf = serde_json::json!([-1, [99]]);
-
-    // successful case; only BigInt
-    assert_eq!(
-        num_bigint::BigInt::from(-99),
-        itf::from_value::<num_bigint::BigInt>(itf.clone()).unwrap()
-    );
-
-    // unsuccessful cases
-    assert!(itf::from_value::<i64>(itf.clone()).is_err());
-    assert!(itf::from_value::<u64>(itf.clone()).is_err());
-    assert!(itf::from_value::<itf::value::BigInt>(itf.clone()).is_err());
-    assert!(!matches!(
-        itf::from_value::<itf::Value>(itf.clone()).unwrap(),
-        itf::Value::BigInt(_),
-    ));
-}
-
-#[test]
 fn test_bigint_deser() {
     let itf = serde_json::json!({"#bigint": "-99"});
 
     // successful case; only BigInt
     assert_eq!(
-        num_bigint::BigInt::from(-99),
+        dashu_int::IBig::from(-99),
         itf::from_value(itf.clone()).unwrap()
     );
 
@@ -67,16 +47,19 @@ fn test_bigint_deser() {
 fn test_biguint_deser() {
     let itf = serde_json::json!({"#bigint": "99"});
 
-    // successful case; only BigInt
     assert_eq!(
-        num_bigint::BigInt::from(99),
+        dashu_int::IBig::from(99u32),
+        itf::from_value(itf.clone()).unwrap()
+    );
+
+    assert_eq!(
+        dashu_int::UBig::from(99u32),
         itf::from_value(itf.clone()).unwrap()
     );
 
     // unsuccessful cases
     assert!(itf::from_value::<i64>(itf.clone()).is_err());
     assert!(itf::from_value::<u64>(itf.clone()).is_err());
-    assert!(itf::from_value::<num_bigint::BigUint>(itf.clone()).is_err());
     assert!(itf::from_value::<itf::value::BigInt>(itf.clone()).is_err());
     assert!(!matches!(
         itf::from_value::<itf::Value>(itf.clone()).unwrap(),
@@ -133,13 +116,13 @@ fn test_bigint_to_int() {
     });
 
     assert!(itf::from_value::<i64>(itf.clone()).is_err());
-    assert!(itf::from_value::<num_bigint::BigInt>(itf).is_ok());
+    assert!(itf::from_value::<dashu_int::IBig>(itf).is_ok());
 }
 
 #[test]
 fn test_deserialize_any() {
+    use dashu_int::IBig;
     use itf::de::{As, Integer, Same};
-    use num_bigint::BigInt;
     use std::collections::HashMap;
 
     let itf = serde_json::json!([{
@@ -157,8 +140,8 @@ fn test_deserialize_any() {
     #[derive(Deserialize, Debug)]
     #[serde(tag = "typ")]
     enum FooBarBigInt {
-        Foo { _foo: HashMap<BigInt, BigInt> },
-        Bar { _bar: Vec<Vec<(BigInt, BigInt)>> },
+        Foo { _foo: HashMap<IBig, IBig> },
+        Bar { _bar: Vec<Vec<(IBig, IBig)>> },
     }
     itf::from_value::<Vec<FooBarBigInt>>(itf.clone()).unwrap();
 
@@ -166,7 +149,7 @@ fn test_deserialize_any() {
     #[derive(Deserialize, Debug)]
     #[serde(tag = "typ")]
     enum FooBarInt {
-        // try to deserialize _foo as i64, instead of BigInt
+        // try to deserialize _foo as i64, instead of IBig
         Foo {
             #[serde(with = "As::<HashMap<Integer, Integer>>")]
             _foo: HashMap<i64, i64>,
@@ -182,14 +165,14 @@ fn test_deserialize_any() {
     #[derive(Deserialize, Debug)]
     #[serde(tag = "typ")]
     enum FooBarMixInt {
-        // try to deserialize _foo as i64, instead of BigInt
+        // try to deserialize _foo as i64, instead of IBig
         Foo {
             #[serde(with = "As::<HashMap<Integer, Integer>>")]
-            _foo: HashMap<i64, BigInt>,
+            _foo: HashMap<i64, IBig>,
         },
         Bar {
             #[serde(with = "As::<Vec<Vec<(Same, Integer)>>>")]
-            _bar: Vec<Vec<(BigInt, u64)>>,
+            _bar: Vec<Vec<(IBig, u64)>>,
         },
     }
     itf::from_value::<Vec<FooBarMixInt>>(itf.clone()).unwrap();
@@ -213,7 +196,7 @@ fn test_failed_bare_bigint_to_int() {
 
 #[test]
 fn test_complete() {
-    use num_bigint::BigInt;
+    use dashu_int::IBig;
     use std::collections::{BTreeSet, HashMap, HashSet};
 
     #[allow(dead_code)]
@@ -227,8 +210,8 @@ fn test_complete() {
     #[allow(dead_code)]
     #[derive(Deserialize, Debug)]
     struct Rec {
-        foo: BigInt,
-        bar: BigInt,
+        foo: IBig,
+        bar: IBig,
     }
 
     #[derive(Deserialize, Debug)]
@@ -236,11 +219,11 @@ fn test_complete() {
         _bool: bool,
         _number: i64,
         _str: String,
-        _bigint: BigInt,
-        _list: Vec<BigInt>,
-        _tuple: (String, BigInt),
-        _set: HashSet<BigInt>,
-        _map: HashMap<BTreeSet<BigInt>, BigInt>,
+        _bigint: IBig,
+        _list: Vec<IBig>,
+        _tuple: (String, IBig),
+        _set: HashSet<IBig>,
+        _map: HashMap<BTreeSet<IBig>, IBig>,
         _record: Rec,
         _enum: Vec<RecordEnum>,
     }

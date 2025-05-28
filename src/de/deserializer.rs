@@ -130,6 +130,7 @@ impl<'de> Deserializer<'de> for Value {
     {
         match self {
             Value::String(v) => visitor.visit_string(v),
+            Value::BigInt(v) => visit_bigint(v, visitor),
             _ => Err(self.invalid_type(&visitor)),
         }
     }
@@ -315,24 +316,7 @@ fn visit_bigint<'de, V>(v: BigInt, visitor: V) -> Result<V::Value, Error>
 where
     V: Visitor<'de>,
 {
-    let (sign, digits) = v.into_inner().to_u32_digits();
-
-    let sign_value = match sign {
-        num_bigint::Sign::Minus => -1,
-        num_bigint::Sign::NoSign => 0,
-        num_bigint::Sign::Plus => 1,
-    };
-
-    let digit_value = digits
-        .into_iter()
-        .map(i64::from)
-        .map(Value::Number)
-        .collect();
-
-    let serialized = [Value::Number(sign_value), Value::List(digit_value)];
-
-    let deserializer = SeqDeserializer::new(serialized.into_iter());
-    visitor.visit_seq(deserializer)
+    visitor.visit_string(v.to_string())
 }
 
 fn visit_map<'de, V>(v: Map<Value, Value>, visitor: V) -> Result<V::Value, Error>

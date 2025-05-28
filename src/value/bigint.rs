@@ -10,18 +10,18 @@ use serde::{Deserialize, Serialize};
 ///
 /// Big and small integers must be written in this format.
 #[derive(Clone, PartialEq, Eq, PartialOrd, Ord, Hash)]
-pub struct BigInt(num_bigint::BigInt);
+pub struct BigInt(dashu_int::IBig);
 
 impl BigInt {
-    pub fn new(value: impl Into<num_bigint::BigInt>) -> Self {
+    pub fn new(value: impl Into<dashu_int::IBig>) -> Self {
         Self(value.into())
     }
 
-    pub fn get(&self) -> &num_bigint::BigInt {
+    pub fn get(&self) -> &dashu_int::IBig {
         &self.0
     }
 
-    pub fn into_inner(self) -> num_bigint::BigInt {
+    pub fn into_inner(self) -> dashu_int::IBig {
         self.0
     }
 }
